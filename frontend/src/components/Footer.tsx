@@ -117,8 +117,8 @@ export const Footer: React.FC = () => {
             © {new Date().getFullYear()} Novocrypt. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link to="/" className="text-slate-500 hover:text-white text-sm transition-colors">Privacy Policy</Link>
-            <Link to="/" className="text-slate-500 hover:text-white text-sm transition-colors">Terms of Service</Link>
+            <Link to="/privacy" className="text-slate-500 hover:text-white text-sm transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="text-slate-500 hover:text-white text-sm transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>

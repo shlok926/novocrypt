@@ -25,7 +25,8 @@ import ThreatFeed from './pages/ThreatFeed';
 import MigrationPlanner from './pages/MigrationPlanner';
 import ComplianceChecker from './pages/ComplianceChecker';
 import Community from './pages/Community';
-import QuantumBot from './pages/QuantumBot';
+import { Privacy } from './pages/Privacy';
+import { Terms } from './pages/Terms';
 
 function App() {
   return (
@@ -45,6 +46,8 @@ function App() {
             <Route path="/qday-tracker" element={<QDayTracker />} />
             <Route path="/threats" element={<ThreatFeed />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             
             {/* Protected Routes (Require Login) */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
