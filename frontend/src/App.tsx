@@ -27,6 +27,7 @@ import ComplianceChecker from './pages/ComplianceChecker';
 import Community from './pages/Community';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
+import QuantumBot from './pages/QuantumBot';
 
 function App() {
   return (

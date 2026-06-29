@@ -1,5 +1,5 @@
 import React from 'react';
-import ScrollReveal from '../components/ui/ScrollReveal';
+import { ScrollReveal } from '../components/ui/ScrollReveal';
 
 export function Terms() {
   return (
