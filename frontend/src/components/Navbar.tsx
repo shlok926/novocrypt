@@ -45,7 +45,7 @@ export const Navbar: React.FC = () => {
     items: [
       { label: 'Learning Center', href: '/learn' },
       { label: 'Algorithms', href: '/algorithms' },
-      { label: 'Documentation', href: '#' },
+      { label: 'Documentation', href: '/learn' },
       { label: 'Blog', href: '/blog' },
     ],
   };

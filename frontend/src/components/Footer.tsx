@@ -49,9 +49,9 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
+                <Link to="/scanner" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
                   <ChevronRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
-                  Pricing
+                  Threat Scanner
                 </Link>
               </li>
             </ul>
@@ -62,25 +62,25 @@ export const Footer: React.FC = () => {
             <h3 className="text-white font-semibold mb-6">Learn</h3>
             <ul className="space-y-4">
               <li>
-                <Link to="/learn/rsa" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
+                <Link to="/learn" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
                   <ChevronRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                   How RSA Works
                 </Link>
               </li>
               <li>
-                <Link to="/learn/shors" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
+                <Link to="/learn" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
                   <ChevronRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                   Shor's Algorithm
                 </Link>
               </li>
               <li>
-                <Link to="/learn/hndl" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
+                <Link to="/threats" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
                   <ChevronRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                   HNDL Attacks
                 </Link>
               </li>
               <li>
-                <Link to="/learn/qday" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
+                <Link to="/qday-tracker" className="text-slate-400 hover:text-blue-400 text-sm flex items-center gap-2 group">
                   <ChevronRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                   Q-Day Timeline
                 </Link>
@@ -117,8 +117,8 @@ export const Footer: React.FC = () => {
             © {new Date().getFullYear()} Novocrypt. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link to="/privacy" className="text-slate-500 hover:text-white text-sm transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="text-slate-500 hover:text-white text-sm transition-colors">Terms of Service</Link>
+            <Link to="/" className="text-slate-500 hover:text-white text-sm transition-colors">Privacy Policy</Link>
+            <Link to="/" className="text-slate-500 hover:text-white text-sm transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>
