@@ -126,11 +126,34 @@ export const threatService = {
   }): Promise<ThreatIntelligence[]> {
     try {
       // Try the existing threat feed endpoint first
-      const response = await api.get(`${THREAT_API_BASE}/feed?page=1&limit=${filters?.limit || 50}`);
+      const [feedResponse, liveResponse] = await Promise.allSettled([
+        api.get(`${THREAT_API_BASE}/feed?page=1&limit=${filters?.limit || 50}`),
+        api.get(`${THREAT_API_BASE}/live`)
+      ]);
       
-      // Transform backend response to frontend format
-      if (response.data.data && Array.isArray(response.data.data.items)) {
-        let threats = response.data.data.items.map((item: any) => ({
+      let threats: ThreatIntelligence[] = [];
+
+      // Add Live RSS News first
+      if (liveResponse.status === 'fulfilled' && liveResponse.value.data.data) {
+        const liveItems = liveResponse.value.data.data.map((item: any) => ({
+          id: item.id || `live-${Math.random()}`,
+          title: item.title,
+          description: item.summary || item.description || 'No description available',
+          source: item.source,
+          severity: item.severity,
+          category: item.category,
+          date: item.publishedAt || item.date,
+          affectedAlgorithms: item.affectedAlgorithms || ['Unknown'],
+          recommendation: item.recommendation || 'Monitor for updates',
+          impact: item.impact || 'Unknown impact',
+          source_url: item.url || item.source_url || '#'
+        }));
+        threats = [...threats, ...liveItems];
+      }
+
+      // Add Database Feed items
+      if (feedResponse.status === 'fulfilled' && feedResponse.value.data.data && Array.isArray(feedResponse.value.data.data.items)) {
+        const feedItems = feedResponse.value.data.data.items.map((item: any) => ({
           id: item.id,
           title: item.title,
           description: item.summary || item.description || 'No description available',
@@ -143,7 +166,10 @@ export const threatService = {
           impact: item.impact || 'Unknown impact',
           source_url: item.url || item.source_url || '#'
         }));
+        threats = [...threats, ...feedItems];
+      }
 
+      if (threats.length > 0) {
         // Apply filters
         if (filters?.severity) {
           threats = threats.filter((t: ThreatIntelligence) => t.severity === filters.severity);
@@ -152,7 +178,7 @@ export const threatService = {
           threats = threats.filter((t: ThreatIntelligence) => t.category === filters.category);
         }
 
-        return threats;
+        return threats.slice(0, filters?.limit || 50);
       }
     } catch (error) {
       console.warn('Existing threat API unavailable, using mock data');

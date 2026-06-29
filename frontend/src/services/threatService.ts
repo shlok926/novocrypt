@@ -29,6 +29,14 @@ export async function getThreatFeed(
 }
 
 /**
+ * Get live threat feed (RSS combined)
+ */
+export async function getLiveThreats(): Promise<ThreatItem[]> {
+  const response = await api.get('/threats/live');
+  return response.data.data;
+}
+
+/**
  * Get global threat level
  */
 export async function getThreatLevel(): Promise<ThreatLevel> {

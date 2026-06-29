@@ -21,6 +21,17 @@ router.get('/feed', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/threats/live
+router.get('/live', async (req: Request, res: Response) => {
+  try {
+    const liveThreats = await threatsService.fetchLiveQuantumThreats();
+    res.json({ success: true, data: liveThreats });
+  } catch (error) {
+    console.error('Error fetching live threats:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch live threats' });
+  }
+});
+
 // GET /api/threats/level
 router.get('/level', async (req: Request, res: Response) => {
   try {

@@ -1,5 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import axios from 'axios';
+import Parser from 'rss-parser';
+
+const parser = new Parser();
 
 const prisma = new PrismaClient();
 
@@ -407,31 +410,40 @@ export async function getThreatStatistics() {
 }
 
 /**
- * Fetch threats from NewsAPI (placeholder for actual implementation)
+ * Fetch real-time threats and news from RSS feeds
  */
-export async function fetchFromNewsAPI(): Promise<ThreatFeedItem[]> {
+export async function fetchLiveQuantumThreats(): Promise<ThreatFeedItem[]> {
   try {
-    const response = await axios.get('https://newsapi.org/v2/everything', {
-      params: {
-        q: 'quantum computing OR cryptography OR security',
-        apiKey: process.env.NEWSAPI_KEY || 'demo',
-        sortBy: 'publishedAt',
-        language: 'en',
-        pageSize: 20,
-      },
-    });
+    const feedUrls = [
+      'https://news.google.com/rss/search?q=post-quantum+cryptography+OR+quantum+computing+breakthrough&hl=en-US&gl=US&ceid=US:en',
+      'https://news.google.com/rss/search?q=encryption+vulnerability+OR+data+breach&hl=en-US&gl=US&ceid=US:en'
+    ];
 
-    return response.data.articles.map((article: any) => ({
-      title: article.title,
-      summary: article.description,
-      source: article.source.name,
-      category: 'research' as const,
-      severity: 'medium' as const,
-      url: article.url,
-      publishedAt: new Date(article.publishedAt),
-    }));
+    const allNews: ThreatFeedItem[] = [];
+
+    for (const url of feedUrls) {
+      const feed = await parser.parseURL(url);
+      
+      const items = feed.items.slice(0, 5).map(item => {
+        const isVulnerability = item.title?.toLowerCase().includes('vulnerability') || item.title?.toLowerCase().includes('breach');
+        
+        return {
+          title: item.title || 'Quantum News Update',
+          summary: item.contentSnippet || item.title || 'No description available',
+          source: item.source || feed.title || 'Global News',
+          category: isVulnerability ? 'breach' : 'research',
+          severity: isVulnerability ? 'high' : 'medium',
+          url: item.link || '#',
+          publishedAt: item.isoDate ? new Date(item.isoDate) : new Date(),
+        } as ThreatFeedItem;
+      });
+
+      allNews.push(...items);
+    }
+
+    return allNews.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
   } catch (error) {
-    console.error('Error fetching from NewsAPI:', error);
+    console.error('Error fetching live RSS threats:', error);
     return [];
   }
 }

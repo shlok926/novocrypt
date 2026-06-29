@@ -10,6 +10,7 @@ import * as threatService from '../services/threatService';
 interface ThreatStore {
   // State
   feed: ThreatFeed | null;
+  liveThreats: ThreatItem[];
   threatLevel: ThreatLevel | null;
   advisories: ThreatItem[];
   vendorAlerts: ThreatItem[];
@@ -19,6 +20,7 @@ interface ThreatStore {
 
   // Actions
   fetchFeed: (page?: number, limit?: number, category?: string, severity?: string) => Promise<void>;
+  fetchLiveFeed: () => Promise<void>;
   fetchThreatLevel: () => Promise<void>;
   fetchAdvisories: () => Promise<void>;
   fetchVendorAlerts: () => Promise<void>;
@@ -30,6 +32,7 @@ interface ThreatStore {
 export const useThreatStore = create<ThreatStore>((set, get) => ({
   // Initial state
   feed: null,
+  liveThreats: [],
   threatLevel: null,
   advisories: [],
   vendorAlerts: [],
@@ -48,6 +51,15 @@ export const useThreatStore = create<ThreatStore>((set, get) => ({
         error: error instanceof Error ? error.message : 'Failed to fetch threat feed',
         loading: false,
       });
+    }
+  },
+
+  fetchLiveFeed: async () => {
+    try {
+      const liveThreats = await threatService.getLiveThreats();
+      set({ liveThreats });
+    } catch (error) {
+      console.error('Failed to fetch live feed:', error);
     }
   },
 
@@ -106,8 +118,9 @@ export const useThreatStore = create<ThreatStore>((set, get) => ({
   fetchAll: async () => {
     set({ loading: true, error: null });
     try {
-      const [feed, threatLevel, advisories, vendorAlerts, stats] = await Promise.all([
+      const [feed, liveThreats, threatLevel, advisories, vendorAlerts, stats] = await Promise.all([
         threatService.getThreatFeed(1, 20),
+        threatService.getLiveThreats().catch(() => []),
         threatService.getThreatLevel(),
         threatService.getAdvisories(),
         threatService.getVendorAlerts(),
@@ -116,6 +129,7 @@ export const useThreatStore = create<ThreatStore>((set, get) => ({
 
       set({
         feed,
+        liveThreats,
         threatLevel,
         advisories,
         vendorAlerts,
@@ -133,6 +147,7 @@ export const useThreatStore = create<ThreatStore>((set, get) => ({
   reset: () => {
     set({
       feed: null,
+      liveThreats: [],
       threatLevel: null,
       advisories: [],
       vendorAlerts: [],
