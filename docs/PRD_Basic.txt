@@ -1,0 +1,914 @@
+================================================================================
+                     Novocrypt PLATFORM
+              Complete Project Documentation Package
+================================================================================
+Version     : 1.0.0
+Date        : 2026-04-29
+Product     : Novocrypt - Quantum Threat Awareness & Security Platform
+Type        : Full-Stack Web Application (MVP)
+================================================================================
+
+
+================================================================================
+SECTION 1: PROBLEM STATEMENT (PS)
+================================================================================
+
+TITLE:
+  The Quantum Cryptography Threat: A Silent Crisis in Digital Security
+
+BACKGROUND:
+  Modern digital security relies heavily on RSA (Rivest-Shamir-Adleman)
+  encryption, which protects everything from banking transactions to government
+  communications. RSA security is based on the computational difficulty of
+  factoring large prime numbers — a task that classical computers cannot
+  solve in feasible time.
+
+  However, quantum computers running Shor's Algorithm can factor these large
+  numbers in polynomial time O(log3n), making RSA encryption completely
+  obsolete the moment sufficiently powerful quantum computers arrive — an
+  event researchers call "Q-Day."
+
+THE CORE PROBLEM:
+  1. HNDL ATTACK (Harvest Now, Decrypt Later):
+     Adversaries (nation-states, cybercriminal organizations) are already
+     collecting encrypted internet traffic TODAY and storing it. When Q-Day
+     arrives, they will decrypt everything retroactively using Shor's Algorithm.
+     Data encrypted today with RSA will be exposed tomorrow.
+
+  2. LACK OF AWARENESS:
+     - 95% of organizations do not know their quantum vulnerability level.
+     - Most developers still use RSA-2048 without understanding the risk.
+     - General public has zero awareness about HNDL attacks.
+     - No unified platform exists to assess, educate, and guide migration.
+
+  3. MIGRATION GAP:
+     - NIST released post-quantum standards in 2024 (CRYSTALS-Kyber,
+       CRYSTALS-Dilithium, FALCON, SPHINCS+).
+     - Most organizations have no migration roadmap or timeline.
+     - Developers lack tools to detect vulnerable cryptography in their codebases.
+
+  4. NO DEDICATED TOOL EXISTS:
+     - Current security tools don't address quantum-specific threats.
+     - No platform combines: Education + Assessment + Demo + Migration Planning.
+
+IMPACT:
+  - Healthcare: Patient records (lifetime sensitive) at risk.
+  - Finance: Banking transactions, long-term investment data exposed.
+  - Government: Classified data, military communications compromised.
+  - Personal: Private emails, cloud files, passwords vulnerable.
+
+OPPORTUNITY:
+  - Post-Quantum Cryptography market projected at $2.8B by 2026.
+  - NIST mandates quantum-safe migration for US federal systems by 2030.
+  - Zero comprehensive awareness + assessment platforms exist currently.
+
+
+================================================================================
+SECTION 2: PRODUCT REQUIREMENTS DOCUMENT (PRD)
+================================================================================
+
+PRODUCT NAME    : Novocrypt
+TAGLINE         : "Your Defense Against Quantum Threats"
+PRODUCT TYPE    : Web Application (MVP Phase 1)
+TARGET LAUNCH   : MVP in 12 weeks
+
+--------------------------------------------------------------------------------
+2.1 TARGET USERS
+--------------------------------------------------------------------------------
+  PRIMARY:
+    - Security Professionals (CISOs, Security Engineers)
+    - Software Developers and DevOps Engineers
+    - IT Administrators and Compliance Officers
+
+  SECONDARY:
+    - University Students (CS, Cybersecurity)
+    - General Public (awareness)
+    - Researchers and Academics
+
+  TERTIARY:
+    - Enterprise Organizations
+    - Government Agencies
+
+--------------------------------------------------------------------------------
+2.2 USER PERSONAS
+--------------------------------------------------------------------------------
+  PERSONA 1: "Security Sam" (CISO)
+    - Age: 40-55
+    - Goal: Understand quantum risk, get compliance reports
+    - Pain: No tool to assess quantum vulnerability of infrastructure
+    - Need: Dashboard, risk scores, exportable reports
+
+  PERSONA 2: "Dev Diya" (Software Developer)
+    - Age: 25-35
+    - Goal: Know if code uses vulnerable cryptography
+    - Pain: Uses RSA without knowing quantum risk
+    - Need: Code scanner, migration guides, algorithm demos
+
+  PERSONA 3: "Student Sahil" (CS Student)
+    - Age: 18-25
+    - Goal: Learn RSA, Shor's algorithm, quantum computing
+    - Pain: No interactive educational tool exists
+    - Need: Interactive demos, visualizations, quizzes
+
+  PERSONA 4: "General Geeta" (Public User)
+    - Age: 25-50
+    - Goal: Understand if personal data is at risk
+    - Pain: Zero awareness about HNDL attacks
+    - Need: Simple awareness content, risk calculator
+
+--------------------------------------------------------------------------------
+2.3 CORE FEATURES (MVP)
+--------------------------------------------------------------------------------
+
+  MODULE 1: LANDING PAGE / AWARENESS HUB
+  ----------------------------------------
+  FR-001: Display HNDL (Harvest Now, Decrypt Later) attack explanation
+  FR-002: Show interactive Q-Day countdown timer
+  FR-003: Display real-world risk scenarios (Healthcare, Finance, Govt, Personal)
+  FR-004: Show "Who is at risk" section
+  FR-005: Display NIST post-quantum migration guidance
+  FR-006: Responsive design for mobile and desktop
+
+  MODULE 2: INTERACTIVE ALGORITHM LAB
+  ----------------------------------------
+  FR-007: RSA key generation with user inputs (p, q, e)
+  FR-008: Support 8-bit and 16-bit key size selection
+  FR-009: Display n, phi(n), public key, private key
+  FR-010: Classical factorization simulation with timing
+  FR-011: Shor's Algorithm simulation with quantum steps
+  FR-012: Side-by-side comparison of classical vs quantum attack
+  FR-013: Key recovery steps walkthrough (phi(n) to private key d)
+  FR-014: Show factors discovered by both approaches
+
+  MODULE 3: QUANTUM RISK CALCULATOR
+  ----------------------------------------
+  FR-015: User inputs: Industry, Data Type, Encryption Used, Data Lifetime
+  FR-016: Calculate personal/organizational quantum risk score (0-100)
+  FR-017: Display risk level: Low / Medium / High / Critical
+  FR-018: Show estimated years until data at risk
+  FR-019: Provide personalized recommendations
+  FR-020: Option to download risk report as PDF
+
+  MODULE 4: ALGORITHM COMPARISON DASHBOARD
+  ----------------------------------------
+  FR-021: Compare RSA vs ECC vs Post-Quantum algorithms
+  FR-022: Display complexity comparison table
+  FR-023: Show NIST-approved post-quantum algorithms
+  FR-024: Interactive key size vs security level chart
+  FR-025: Migration readiness checklist
+
+  MODULE 5: LEARNING CENTER
+  ----------------------------------------
+  FR-026: Explain RSA theory with step-by-step breakdown
+  FR-027: Explain Shor's Algorithm with visual flow
+  FR-028: Explain HNDL attack with animated timeline
+  FR-029: Explain Q-Day concept
+  FR-030: Show post-quantum cryptography overview
+  FR-031: Glossary of terms
+
+  MODULE 6: USER AUTHENTICATION
+  ----------------------------------------
+  FR-032: User registration and login
+  FR-033: Save risk assessment results
+  FR-034: User dashboard with history
+  FR-035: JWT-based authentication
+
+--------------------------------------------------------------------------------
+2.4 NON-FUNCTIONAL REQUIREMENTS
+--------------------------------------------------------------------------------
+  NFR-001: Page load time < 2 seconds
+  NFR-002: Mobile responsive (320px to 2560px)
+  NFR-003: WCAG 2.1 AA accessibility compliance
+  NFR-004: HTTPS only
+  NFR-005: 99.9% uptime SLA (production)
+  NFR-006: Cross-browser support (Chrome, Firefox, Safari, Edge)
+  NFR-007: SEO optimized
+
+--------------------------------------------------------------------------------
+2.5 MONETIZATION (Post-MVP)
+--------------------------------------------------------------------------------
+  FREE:
+    - Awareness content
+    - Algorithm lab (basic)
+    - Risk calculator (limited)
+    - Learning center
+
+  PRO ($29/month):
+    - Full risk assessment
+    - PDF reports
+    - Unlimited lab sessions
+    - Email alerts
+
+  ENTERPRISE ($499/month):
+    - Team accounts
+    - API access
+    - Custom reports
+    - Dedicated support
+
+
+================================================================================
+SECTION 3: TECHNICAL REQUIREMENTS DOCUMENT (TRD)
+================================================================================
+
+--------------------------------------------------------------------------------
+3.1 TECH STACK
+--------------------------------------------------------------------------------
+
+  FRONTEND:
+    - Framework       : React.js 18+ (with Vite build tool)
+    - Language        : TypeScript
+    - Styling         : Tailwind CSS 3.x
+    - UI Components   : shadcn/ui + Radix UI
+    - Charts/Viz      : Recharts + D3.js
+    - Animations      : Framer Motion
+    - State Mgmt      : Zustand
+    - Forms           : React Hook Form + Zod
+    - HTTP Client     : Axios
+    - Icons           : Lucide React
+    - PDF Export      : jsPDF + html2canvas
+    - Routing         : React Router v6
+
+  BACKEND:
+    - Runtime         : Node.js 20+
+    - Framework       : Express.js
+    - Language        : TypeScript
+    - Authentication  : JWT (jsonwebtoken) + bcryptjs
+    - Validation      : Zod
+    - ORM             : Prisma
+    - API Style       : RESTful API
+
+  DATABASE:
+    - Primary DB      : PostgreSQL 15+
+    - Cache           : Redis (sessions, rate limiting)
+
+  DEVOPS / INFRASTRUCTURE:
+    - Containerization: Docker + Docker Compose
+    - CI/CD           : GitHub Actions
+    - Hosting (FE)    : Vercel
+    - Hosting (BE)    : Railway / Render
+    - DB Hosting      : Supabase / Railway PostgreSQL
+
+  DEVELOPMENT TOOLS:
+    - Package Manager : npm
+    - Linter          : ESLint
+    - Formatter       : Prettier
+    - Testing (FE)    : Vitest + React Testing Library
+    - Testing (BE)    : Jest + Supertest
+    - Version Control : Git + GitHub
+
+--------------------------------------------------------------------------------
+3.2 API ENDPOINTS
+--------------------------------------------------------------------------------
+
+  AUTH:
+    POST   /api/auth/register        - Register new user
+    POST   /api/auth/login           - Login user
+    POST   /api/auth/logout          - Logout user
+    GET    /api/auth/me              - Get current user
+
+  RSA LAB:
+    POST   /api/lab/generate-keys    - Generate RSA key pair
+    POST   /api/lab/classical-attack - Run classical factorization
+    POST   /api/lab/quantum-attack   - Run Shor's simulation
+    POST   /api/lab/compare          - Compare both attacks
+
+  RISK CALCULATOR:
+    POST   /api/risk/calculate       - Calculate quantum risk score
+    GET    /api/risk/history         - Get user's risk assessments
+    GET    /api/risk/:id             - Get specific assessment
+
+  ALGORITHMS:
+    GET    /api/algorithms/list      - List all algorithms
+    GET    /api/algorithms/compare   - Comparison data
+    GET    /api/algorithms/nist      - NIST standards info
+
+  REPORTS:
+    POST   /api/reports/generate     - Generate PDF report
+    GET    /api/reports/list         - List user's reports
+
+  CONTENT:
+    GET    /api/content/qday-stats   - Q-Day statistics
+    GET    /api/content/threats      - Threat information
+
+--------------------------------------------------------------------------------
+3.3 DATABASE SCHEMA
+--------------------------------------------------------------------------------
+
+  TABLE: users
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid()
+    email         VARCHAR(255) UNIQUE NOT NULL
+    password_hash VARCHAR(255) NOT NULL
+    name          VARCHAR(255)
+    role          VARCHAR(50) DEFAULT 'free'
+    created_at    TIMESTAMP DEFAULT NOW()
+    updated_at    TIMESTAMP DEFAULT NOW()
+
+  TABLE: risk_assessments
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid()
+    user_id       UUID REFERENCES users(id)
+    industry      VARCHAR(100)
+    data_type     VARCHAR(100)
+    encryption    VARCHAR(100)
+    data_lifetime INTEGER
+    risk_score    INTEGER
+    risk_level    VARCHAR(50)
+    recommendations JSONB
+    created_at    TIMESTAMP DEFAULT NOW()
+
+  TABLE: lab_sessions
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid()
+    user_id       UUID REFERENCES users(id)
+    p_value       INTEGER
+    q_value       INTEGER
+    e_value       INTEGER
+    n_value       INTEGER
+    phi_n         INTEGER
+    private_key_d INTEGER
+    key_size_bits INTEGER
+    classical_time_ms DECIMAL
+    quantum_steps INTEGER
+    quantum_time_ms DECIMAL
+    created_at    TIMESTAMP DEFAULT NOW()
+
+  TABLE: reports
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid()
+    user_id       UUID REFERENCES users(id)
+    assessment_id UUID REFERENCES risk_assessments(id)
+    file_url      VARCHAR(500)
+    created_at    TIMESTAMP DEFAULT NOW()
+
+--------------------------------------------------------------------------------
+3.4 SECURITY REQUIREMENTS
+--------------------------------------------------------------------------------
+  SEC-001: All passwords hashed with bcrypt (salt rounds: 12)
+  SEC-002: JWT tokens expire in 7 days
+  SEC-003: Rate limiting on all API endpoints (100 req/15min)
+  SEC-004: CORS configured for allowed origins only
+  SEC-005: Input validation on all endpoints (Zod schemas)
+  SEC-006: SQL injection prevention via Prisma ORM
+  SEC-007: XSS prevention via React built-in escaping
+  SEC-008: HTTPS enforced in production
+  SEC-009: Environment variables for all secrets
+  SEC-010: HTTP security headers (Helmet.js)
+
+--------------------------------------------------------------------------------
+3.5 PERFORMANCE REQUIREMENTS
+--------------------------------------------------------------------------------
+  PERF-001: RSA key generation < 100ms
+  PERF-002: Classical factorization (8-bit): < 10ms
+  PERF-003: Shor's simulation: < 50ms
+  PERF-004: Risk calculation: < 200ms
+  PERF-005: API response time: < 500ms (95th percentile)
+  PERF-006: Frontend bundle size: < 500KB (gzipped)
+
+
+================================================================================
+SECTION 4: DESIGN DOCUMENT
+================================================================================
+
+--------------------------------------------------------------------------------
+4.1 DESIGN PHILOSOPHY
+--------------------------------------------------------------------------------
+  - Clean, modern, professional dark/light hybrid
+  - Information-first layout (no clutter)
+  - Trust-inducing design (security product)
+  - Clear visual hierarchy
+  - Accessibility-first
+  - Micro-interactions for engagement
+
+--------------------------------------------------------------------------------
+4.2 COLOR SYSTEM
+--------------------------------------------------------------------------------
+  PRIMARY:
+    Background      : #F8FAFC (slate-50)
+    Surface         : #FFFFFF
+    Dark Surface    : #0F172A (slate-900)
+
+  ACCENT:
+    Primary Blue    : #3B82F6 (blue-500)
+    Quantum Purple  : #8B5CF6 (violet-500)
+    Warning Orange  : #F59E0B (amber-500)
+    Danger Red      : #EF4444 (red-500)
+    Safe Green      : #10B981 (emerald-500)
+
+  TEXT:
+    Primary         : #1E293B (slate-800)
+    Secondary       : #64748B (slate-500)
+    Muted           : #94A3B8 (slate-400)
+
+  GRADIENTS:
+    Hero            : from-slate-900 to-blue-900
+    Quantum         : from-purple-600 to-blue-600
+    Warning         : from-orange-500 to-red-500
+    Safe            : from-green-500 to-emerald-600
+
+--------------------------------------------------------------------------------
+4.3 TYPOGRAPHY
+--------------------------------------------------------------------------------
+  Font Family   : Inter (Google Fonts)
+  Headings      : Inter Bold (700)
+  Body          : Inter Regular (400)
+  Mono/Code     : JetBrains Mono
+
+  Scale:
+    H1: 3.5rem  / 56px  (Hero titles)
+    H2: 2.25rem / 36px  (Section titles)
+    H3: 1.5rem  / 24px  (Card titles)
+    H4: 1.25rem / 20px  (Sub-sections)
+    Body: 1rem  / 16px  (Regular text)
+    Small: 0.875rem     (Captions, labels)
+
+--------------------------------------------------------------------------------
+4.4 COMPONENT LIBRARY
+--------------------------------------------------------------------------------
+  - Button (primary, secondary, ghost, danger)
+  - Card (default, highlight, warning, glass)
+  - Badge (low, medium, high, critical)
+  - Input (text, number, select)
+  - Modal / Dialog
+  - Toast notifications
+  - Progress bar
+  - Tabs
+  - Accordion
+  - Tooltip
+  - Chart components
+  - Risk gauge
+  - Timeline component
+  - Countdown timer
+  - Algorithm comparison table
+  - Step indicator
+  - Code block display
+
+--------------------------------------------------------------------------------
+4.5 PAGE LAYOUTS
+--------------------------------------------------------------------------------
+
+  PAGE 1: HOME / AWARENESS (/)
+    - Hero: Full-width dark gradient with Q-Day countdown
+    - HNDL Attack: 3-column visual breakdown
+    - Risk sectors: Healthcare, Finance, Govt, Personal
+    - Live threat stats counter
+    - CTA: Launch Demo / Calculate Risk
+
+  PAGE 2: ALGORITHM LAB (/lab)
+    - Left panel: RSA parameter inputs
+    - Right panel: Generated key information
+    - Bottom: Side-by-side classical vs quantum comparison
+    - Key recovery expandable section
+
+  PAGE 3: RISK CALCULATOR (/risk)
+    - Multi-step form (Industry > Data > Encryption > Lifetime)
+    - Real-time risk score animation
+    - Results dashboard with recommendations
+    - PDF download button
+
+  PAGE 4: ALGORITHM COMPARISON (/algorithms)
+    - Comparison table (RSA vs ECC vs Post-Quantum)
+    - Interactive complexity chart
+    - NIST standards list
+    - Migration checklist
+
+  PAGE 5: LEARNING CENTER (/learn)
+    - Tabbed content (RSA / Shor's / HNDL / Q-Day / Post-Quantum)
+    - Interactive animations
+    - Glossary
+
+  PAGE 6: DASHBOARD (/dashboard) [Auth Required]
+    - Risk history
+    - Lab sessions
+    - Saved reports
+    - Profile settings
+
+
+================================================================================
+SECTION 5: PROJECT STRUCTURE (VS CODE)
+================================================================================
+
+novocrypt/
+├── .github/
+│   └── workflows/
+│       ├── frontend-ci.yml
+│       └── backend-ci.yml
+│
+├── frontend/
+│   ├── public/
+│   │   ├── favicon.ico
+│   │   └── og-image.png
+│   │
+│   ├── src/
+│   │   ├── main.tsx
+│   │   ├── App.tsx
+│   │   ├── vite-env.d.ts
+│   │   │
+│   │   ├── assets/
+│   │   │   ├── images/
+│   │   │   └── icons/
+│   │   │
+│   │   ├── components/
+│   │   │   ├── ui/
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Card.tsx
+│   │   │   │   ├── Input.tsx
+│   │   │   │   ├── Badge.tsx
+│   │   │   │   ├── Modal.tsx
+│   │   │   │   ├── Toast.tsx
+│   │   │   │   ├── Progress.tsx
+│   │   │   │   ├── Tabs.tsx
+│   │   │   │   ├── Tooltip.tsx
+│   │   │   │   ├── Accordion.tsx
+│   │   │   │   └── index.ts
+│   │   │   │
+│   │   │   ├── layout/
+│   │   │   │   ├── Navbar.tsx
+│   │   │   │   ├── Footer.tsx
+│   │   │   │   ├── Sidebar.tsx
+│   │   │   │   └── PageWrapper.tsx
+│   │   │   │
+│   │   │   ├── home/
+│   │   │   │   ├── HeroSection.tsx
+│   │   │   │   ├── QDayCountdown.tsx
+│   │   │   │   ├── HNDLExplainer.tsx
+│   │   │   │   ├── RiskSectors.tsx
+│   │   │   │   ├── ThreatStats.tsx
+│   │   │   │   └── CallToAction.tsx
+│   │   │   │
+│   │   │   ├── lab/
+│   │   │   │   ├── RSAParamsForm.tsx
+│   │   │   │   ├── KeyInfoPanel.tsx
+│   │   │   │   ├── ClassicalAttack.tsx
+│   │   │   │   ├── QuantumAttack.tsx
+│   │   │   │   ├── AttackComparison.tsx
+│   │   │   │   └── KeyRecoverySteps.tsx
+│   │   │   │
+│   │   │   ├── risk/
+│   │   │   │   ├── RiskForm.tsx
+│   │   │   │   ├── RiskGauge.tsx
+│   │   │   │   ├── RiskResults.tsx
+│   │   │   │   ├── RiskRecommendations.tsx
+│   │   │   │   └── RiskReport.tsx
+│   │   │   │
+│   │   │   ├── algorithms/
+│   │   │   │   ├── AlgorithmTable.tsx
+│   │   │   │   ├── ComplexityChart.tsx
+│   │   │   │   ├── NISTStandards.tsx
+│   │   │   │   └── MigrationChecklist.tsx
+│   │   │   │
+│   │   │   ├── learn/
+│   │   │   │   ├── RSALesson.tsx
+│   │   │   │   ├── ShorsLesson.tsx
+│   │   │   │   ├── HNDLLesson.tsx
+│   │   │   │   ├── QDayLesson.tsx
+│   │   │   │   ├── PostQuantumLesson.tsx
+│   │   │   │   └── Glossary.tsx
+│   │   │   │
+│   │   │   ├── dashboard/
+│   │   │   │   ├── RiskHistory.tsx
+│   │   │   │   ├── LabHistory.tsx
+│   │   │   │   ├── ReportsList.tsx
+│   │   │   │   └── ProfileSettings.tsx
+│   │   │   │
+│   │   │   └── auth/
+│   │   │       ├── LoginForm.tsx
+│   │   │       └── RegisterForm.tsx
+│   │   │
+│   │   ├── pages/
+│   │   │   ├── Home.tsx
+│   │   │   ├── Lab.tsx
+│   │   │   ├── RiskCalculator.tsx
+│   │   │   ├── Algorithms.tsx
+│   │   │   ├── Learn.tsx
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── Register.tsx
+│   │   │   └── NotFound.tsx
+│   │   │
+│   │   ├── hooks/
+│   │   │   ├── useAuth.ts
+│   │   │   ├── useRSA.ts
+│   │   │   ├── useRiskCalculator.ts
+│   │   │   └── useCountdown.ts
+│   │   │
+│   │   ├── store/
+│   │   │   ├── authStore.ts
+│   │   │   ├── labStore.ts
+│   │   │   └── riskStore.ts
+│   │   │
+│   │   ├── services/
+│   │   │   ├── api.ts
+│   │   │   ├── authService.ts
+│   │   │   ├── labService.ts
+│   │   │   ├── riskService.ts
+│   │   │   └── reportService.ts
+│   │   │
+│   │   ├── utils/
+│   │   │   ├── rsa.ts
+│   │   │   ├── shors.ts
+│   │   │   ├── riskCalculator.ts
+│   │   │   ├── primes.ts
+│   │   │   └── formatters.ts
+│   │   │
+│   │   ├── types/
+│   │   │   ├── auth.types.ts
+│   │   │   ├── lab.types.ts
+│   │   │   ├── risk.types.ts
+│   │   │   └── algorithm.types.ts
+│   │   │
+│   │   ├── constants/
+│   │   │   ├── algorithms.ts
+│   │   │   ├── riskLevels.ts
+│   │   │   └── industries.ts
+│   │   │
+│   │   └── styles/
+│   │       └── globals.css
+│   │
+│   ├── index.html
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   ├── tailwind.config.ts
+│   └── .env.example
+│
+├── backend/
+│   ├── src/
+│   │   ├── index.ts
+│   │   ├── app.ts
+│   │   │
+│   │   ├── config/
+│   │   │   ├── database.ts
+│   │   │   ├── redis.ts
+│   │   │   └── env.ts
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── index.ts
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── lab.routes.ts
+│   │   │   ├── risk.routes.ts
+│   │   │   ├── algorithms.routes.ts
+│   │   │   ├── reports.routes.ts
+│   │   │   └── content.routes.ts
+│   │   │
+│   │   ├── controllers/
+│   │   │   ├── auth.controller.ts
+│   │   │   ├── lab.controller.ts
+│   │   │   ├── risk.controller.ts
+│   │   │   ├── algorithms.controller.ts
+│   │   │   ├── reports.controller.ts
+│   │   │   └── content.controller.ts
+│   │   │
+│   │   ├── services/
+│   │   │   ├── auth.service.ts
+│   │   │   ├── lab.service.ts
+│   │   │   ├── risk.service.ts
+│   │   │   └── report.service.ts
+│   │   │
+│   │   ├── middleware/
+│   │   │   ├── auth.middleware.ts
+│   │   │   ├── rateLimit.middleware.ts
+│   │   │   ├── validate.middleware.ts
+│   │   │   └── error.middleware.ts
+│   │   │
+│   │   ├── utils/
+│   │   │   ├── rsa.util.ts
+│   │   │   ├── shors.util.ts
+│   │   │   ├── risk.util.ts
+│   │   │   ├── jwt.util.ts
+│   │   │   ├── hash.util.ts
+│   │   │   └── logger.ts
+│   │   │
+│   │   ├── schemas/
+│   │   │   ├── auth.schema.ts
+│   │   │   ├── lab.schema.ts
+│   │   │   └── risk.schema.ts
+│   │   │
+│   │   └── types/
+│   │       ├── express.d.ts
+│   │       └── api.types.ts
+│   │
+│   ├── prisma/
+│   │   ├── schema.prisma
+│   │   └── migrations/
+│   │
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── .env.example
+│
+├── docker/
+│   ├── Dockerfile.frontend
+│   ├── Dockerfile.backend
+│   └── nginx.conf
+│
+├── docker-compose.yml
+├── docker-compose.prod.yml
+├── .gitignore
+├── .prettierrc
+├── .eslintrc.json
+└── README.md
+
+
+================================================================================
+SECTION 6: ENVIRONMENT VARIABLES
+================================================================================
+
+  FRONTEND (.env):
+    VITE_API_BASE_URL=http://localhost:5000/api
+    VITE_APP_NAME=Novocrypt
+    VITE_QDAY_YEAR=2035
+
+  BACKEND (.env):
+    NODE_ENV=development
+    PORT=5000
+    DATABASE_URL=postgresql://user:password@localhost:5432/quantumshield
+    REDIS_URL=redis://localhost:6379
+    JWT_SECRET=your-super-secret-jwt-key-change-in-production
+    JWT_EXPIRES_IN=7d
+    BCRYPT_SALT_ROUNDS=12
+    CORS_ORIGIN=http://localhost:5173
+    RATE_LIMIT_WINDOW_MS=900000
+    RATE_LIMIT_MAX=100
+
+
+================================================================================
+SECTION 7: CURSOR CHAT PROMPT (PASTE THIS IN CURSOR CTRL+L)
+================================================================================
+
+You are an expert full-stack developer. I have attached a complete project
+documentation file (novocrypt-docs.txt) that contains PS, PRD, TRD,
+Design Doc, Tech Stack, Full File Structure, API Endpoints, DB Schema,
+Environment Variables, and Implementation Roadmap.
+
+Your job is to implement this ENTIRE project completely from scratch, file by file.
+
+=== STRICT RULES ===
+1. Read the attached .txt file completely before starting
+2. Create EVERY file listed in the project structure — no skipping
+3. Write FULL working code in every file — NO placeholders, NO TODO, NO ...
+4. All files must connect properly (frontend to backend to database)
+5. Follow the exact tech stack mentioned in the document
+6. Follow the color system and design from the Design Document exactly
+7. Every component must be fully functional and importable
+8. Backend must have proper error handling in every route
+9. Frontend must have proper loading states and error states
+10. Do NOT ask questions — use the documentation to make decisions
+
+=== IMPLEMENTATION ORDER ===
+
+PHASE 1 - PROJECT SCAFFOLD:
+1. Root: docker-compose.yml, .gitignore, README.md
+2. Backend: package.json, tsconfig.json, .env.example
+3. Frontend: package.json, tsconfig.json, vite.config.ts, tailwind.config.ts
+
+PHASE 2 - BACKEND CORE:
+4. backend/prisma/schema.prisma
+5. backend/src/index.ts
+6. backend/src/app.ts
+7. backend/src/config/database.ts
+8. backend/src/config/redis.ts
+9. backend/src/config/env.ts
+10. backend/src/middleware/auth.middleware.ts
+11. backend/src/middleware/error.middleware.ts
+12. backend/src/middleware/rateLimit.middleware.ts
+13. backend/src/middleware/validate.middleware.ts
+14. backend/src/utils/jwt.util.ts
+15. backend/src/utils/hash.util.ts
+16. backend/src/utils/rsa.util.ts
+17. backend/src/utils/shors.util.ts
+18. backend/src/utils/risk.util.ts
+19. backend/src/schemas/auth.schema.ts
+20. backend/src/schemas/lab.schema.ts
+21. backend/src/schemas/risk.schema.ts
+22. backend/src/controllers/auth.controller.ts
+23. backend/src/controllers/lab.controller.ts
+24. backend/src/controllers/risk.controller.ts
+25. backend/src/controllers/algorithms.controller.ts
+26. backend/src/controllers/reports.controller.ts
+27. backend/src/controllers/content.controller.ts
+28. backend/src/services/auth.service.ts
+29. backend/src/services/lab.service.ts
+30. backend/src/services/risk.service.ts
+31. backend/src/services/report.service.ts
+32. backend/src/routes/auth.routes.ts
+33. backend/src/routes/lab.routes.ts
+34. backend/src/routes/risk.routes.ts
+35. backend/src/routes/algorithms.routes.ts
+36. backend/src/routes/reports.routes.ts
+37. backend/src/routes/content.routes.ts
+38. backend/src/routes/index.ts
+
+PHASE 3 - FRONTEND CORE:
+39. frontend/src/main.tsx
+40. frontend/src/App.tsx
+41. frontend/src/styles/globals.css
+42. frontend/src/types/auth.types.ts
+43. frontend/src/types/lab.types.ts
+44. frontend/src/types/risk.types.ts
+45. frontend/src/types/algorithm.types.ts
+46. frontend/src/constants/algorithms.ts
+47. frontend/src/constants/riskLevels.ts
+48. frontend/src/constants/industries.ts
+49. frontend/src/utils/rsa.ts
+50. frontend/src/utils/shors.ts
+51. frontend/src/utils/riskCalculator.ts
+52. frontend/src/utils/primes.ts
+53. frontend/src/utils/formatters.ts
+54. frontend/src/services/api.ts
+55. frontend/src/services/authService.ts
+56. frontend/src/services/labService.ts
+57. frontend/src/services/riskService.ts
+58. frontend/src/services/reportService.ts
+59. frontend/src/store/authStore.ts
+60. frontend/src/store/labStore.ts
+61. frontend/src/store/riskStore.ts
+62. frontend/src/hooks/useAuth.ts
+63. frontend/src/hooks/useRSA.ts
+64. frontend/src/hooks/useRiskCalculator.ts
+65. frontend/src/hooks/useCountdown.ts
+
+PHASE 4 - UI COMPONENTS:
+66. frontend/src/components/ui/Button.tsx
+67. frontend/src/components/ui/Card.tsx
+68. frontend/src/components/ui/Input.tsx
+69. frontend/src/components/ui/Badge.tsx
+70. frontend/src/components/ui/Modal.tsx
+71. frontend/src/components/ui/Toast.tsx
+72. frontend/src/components/ui/Progress.tsx
+73. frontend/src/components/ui/Tabs.tsx
+74. frontend/src/components/ui/Tooltip.tsx
+75. frontend/src/components/ui/Accordion.tsx
+76. frontend/src/components/ui/index.ts
+77. frontend/src/components/layout/Navbar.tsx
+78. frontend/src/components/layout/Footer.tsx
+79. frontend/src/components/layout/Sidebar.tsx
+80. frontend/src/components/layout/PageWrapper.tsx
+
+PHASE 5 - FEATURE COMPONENTS:
+81. frontend/src/components/home/HeroSection.tsx
+82. frontend/src/components/home/QDayCountdown.tsx
+83. frontend/src/components/home/HNDLExplainer.tsx
+84. frontend/src/components/home/RiskSectors.tsx
+85. frontend/src/components/home/ThreatStats.tsx
+86. frontend/src/components/home/CallToAction.tsx
+87. frontend/src/components/lab/RSAParamsForm.tsx
+88. frontend/src/components/lab/KeyInfoPanel.tsx
+89. frontend/src/components/lab/ClassicalAttack.tsx
+90. frontend/src/components/lab/QuantumAttack.tsx
+91. frontend/src/components/lab/AttackComparison.tsx
+92. frontend/src/components/lab/KeyRecoverySteps.tsx
+93. frontend/src/components/risk/RiskForm.tsx
+94. frontend/src/components/risk/RiskGauge.tsx
+95. frontend/src/components/risk/RiskResults.tsx
+96. frontend/src/components/risk/RiskRecommendations.tsx
+97. frontend/src/components/risk/RiskReport.tsx
+98. frontend/src/components/algorithms/AlgorithmTable.tsx
+99. frontend/src/components/algorithms/ComplexityChart.tsx
+100. frontend/src/components/algorithms/NISTStandards.tsx
+101. frontend/src/components/algorithms/MigrationChecklist.tsx
+102. frontend/src/components/learn/RSALesson.tsx
+103. frontend/src/components/learn/ShorsLesson.tsx
+104. frontend/src/components/learn/HNDLLesson.tsx
+105. frontend/src/components/learn/QDayLesson.tsx
+106. frontend/src/components/learn/PostQuantumLesson.tsx
+107. frontend/src/components/learn/Glossary.tsx
+108. frontend/src/components/dashboard/RiskHistory.tsx
+109. frontend/src/components/dashboard/LabHistory.tsx
+110. frontend/src/components/dashboard/ReportsList.tsx
+111. frontend/src/components/dashboard/ProfileSettings.tsx
+112. frontend/src/components/auth/LoginForm.tsx
+113. frontend/src/components/auth/RegisterForm.tsx
+
+PHASE 6 - PAGES:
+114. frontend/src/pages/Home.tsx
+115. frontend/src/pages/Lab.tsx
+116. frontend/src/pages/RiskCalculator.tsx
+117. frontend/src/pages/Algorithms.tsx
+118. frontend/src/pages/Learn.tsx
+119. frontend/src/pages/Dashboard.tsx
+120. frontend/src/pages/Login.tsx
+121. frontend/src/pages/Register.tsx
+122. frontend/src/pages/NotFound.tsx
+
+PHASE 7 - DOCKER AND CONFIG:
+123. docker/Dockerfile.frontend
+124. docker/Dockerfile.backend
+125. docker/nginx.conf
+126. docker-compose.yml
+
+=== START NOW ===
+Begin with PHASE 1. Create each file with complete production-ready code.
+After every 10 files confirm progress and continue automatically.
+Do not stop until ALL 126 files are created.
+
+
+================================================================================
+SECTION 8: IMPLEMENTATION ROADMAP
+================================================================================
+
+  WEEK 1-2   : Foundation - Setup, Auth, DB, Base UI
+  WEEK 3-4   : Algorithm Lab - RSA + Shor's Demo
+  WEEK 5-6   : Awareness Pages - HNDL, Q-Day, Risk Sectors
+  WEEK 7-8   : Risk Calculator - Form, Scoring, PDF Reports
+  WEEK 9-10  : Algorithm Comparison + Learning Center
+  WEEK 11-12 : Dashboard, Polish, Testing, Deployment
+
+================================================================================
+END OF DOCUMENT
+================================================================================

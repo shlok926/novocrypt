@@ -1,0 +1,1040 @@
+Novocrypt PLATFORM - Advanced Features
+  
+
+
+================================================================================
+                     Novocrypt PLATFORM
+              Advanced Features - Implementation Plan
+================================================================================
+Version     : 2.0.0
+Date        : 2026-05-06
+Phase       : Advanced Features (Post-MVP)
+Builds On   : novocrypt-docs.txt (MVP v1.0.0)
+================================================================================
+
+
+================================================================================
+SECTION 1: ADVANCED FEATURES OVERVIEW
+================================================================================
+
+  FEATURE 1  : Real-Time Threat Intelligence Feed
+  FEATURE 2  : Cryptography Scanner (URL + Code)
+  FEATURE 3  : Q-Day Probability Meter
+  FEATURE 4  : Quantum-Safe Migration Planner
+  FEATURE 5  : Algorithm Playground (Live Encrypt/Decrypt)
+  FEATURE 6  : Compliance Checker
+  FEATURE 7  : Community & Leaderboard
+  FEATURE 8  : QuantumBot AI Chatbot Assistant
+
+  TOTAL NEW FILES : ~80 files
+  ESTIMATED TIME  : 8-10 weeks
+
+
+================================================================================
+SECTION 2: FEATURE SPECIFICATIONS
+================================================================================
+
+--------------------------------------------------------------------------------
+FEATURE 1: REAL-TIME THREAT INTELLIGENCE FEED
+--------------------------------------------------------------------------------
+PAGE ROUTE  : /threats
+
+DESCRIPTION:
+  Live feed of quantum computing breakthroughs, government advisories,
+  vendor vulnerability alerts, and auto-updated threat level indicator.
+
+UI COMPONENTS:
+  - ThreatFeed.tsx          : Scrollable live news cards
+  - ThreatLevelBadge.tsx    : Global threat level indicator (Low/Med/High/Critical)
+  - GovernmentAdvisory.tsx  : NSA, NIST, CISA official alerts
+  - VendorAlert.tsx         : SSL/TLS vendor vulnerability cards
+  - ThreatFilterBar.tsx     : Filter by category/date/severity
+
+BACKEND:
+  - GET /api/threats/feed           : Paginated threat news feed
+  - GET /api/threats/level          : Current global threat level
+  - GET /api/threats/advisories     : Government advisories list
+  - GET /api/threats/vendors        : Vendor vulnerability alerts
+  - POST /api/threats/subscribe     : Email subscription for alerts
+
+DATA MODEL:
+  TABLE: threat_items
+    id          UUID PRIMARY KEY
+    title       VARCHAR(500)
+    summary     TEXT
+    source      VARCHAR(200)
+    category    VARCHAR(100)   -- 'advisory' | 'research' | 'breach' | 'vendor'
+    severity    VARCHAR(50)    -- 'low' | 'medium' | 'high' | 'critical'
+    url         VARCHAR(500)
+    published_at TIMESTAMP
+    created_at  TIMESTAMP DEFAULT NOW()
+
+  TABLE: threat_subscriptions
+    id          UUID PRIMARY KEY
+    email       VARCHAR(255)
+    severity_threshold VARCHAR(50)
+    created_at  TIMESTAMP DEFAULT NOW()
+
+EXTERNAL APIs:
+  - NewsAPI.org (crypto/quantum news)
+  - NIST RSS Feed (https://www.nist.gov/news-events/news/rss.xml)
+  - CISA Advisories RSS
+  - Scheduled cron job: every 6 hours fetch new data
+
+TECH:
+  - node-cron : Scheduled fetching
+  - axios     : External API calls
+  - Redis     : Cache feed (1 hour TTL)
+
+
+--------------------------------------------------------------------------------
+FEATURE 2: CRYPTOGRAPHY SCANNER
+--------------------------------------------------------------------------------
+PAGE ROUTE  : /scanner
+
+DESCRIPTION:
+  User pastes a URL or code snippet. Tool scans for vulnerable cryptographic
+  implementations and shows quantum risk assessment.
+
+UI COMPONENTS:
+  - ScannerTabs.tsx         : Switch between URL / Code / API Key scan
+  - URLScanForm.tsx         : URL input + scan button
+  - CodeScanForm.tsx        : Monaco editor for code paste
+  - ScanResults.tsx         : Vulnerability findings list
+  - ScanVulnerabilityCard.tsx : Per-finding detail card
+  - ScanSummaryBadge.tsx    : Overall risk badge
+  - ScanHistoryList.tsx     : Past scans list
+
+BACKEND:
+  - POST /api/scanner/url           : Scan a website URL
+  - POST /api/scanner/code          : Scan pasted code snippet
+  - GET  /api/scanner/history       : User scan history
+  - GET  /api/scanner/result/:id    : Get specific scan result
+
+URL SCAN LOGIC:
+  1. Fetch SSL/TLS certificate from URL (via ssl-checker npm)
+  2. Extract: key algorithm, key size, cipher suite, expiry
+  3. Check: RSA < 4096? → Vulnerable. ECC P-256? → Moderate.
+  4. Check: TLS version (1.0/1.1 → Critical, 1.2 → Moderate, 1.3 → Better)
+  5. Return: vulnerability list with severity scores
+
+CODE SCAN LOGIC:
+  1. Regex pattern matching for known vulnerable patterns:
+     - crypto.createCipher('des', ...) → Critical
+     - RSA key size < 2048 → High
+     - MD5/SHA1 usage → High
+     - Math.random() for crypto → Critical
+     - Hardcoded keys → Critical
+  2. Language detection (JS/TS/Python/Java/Go)
+  3. AST-based analysis for deeper detection
+  4. Return: line numbers + vulnerability descriptions
+
+DATA MODEL:
+  TABLE: scan_results
+    id              UUID PRIMARY KEY
+    user_id         UUID REFERENCES users(id)
+    scan_type       VARCHAR(50)   -- 'url' | 'code' | 'api'
+    input_target    TEXT
+    findings        JSONB         -- array of vulnerability objects
+    overall_score   INTEGER       -- 0-100
+    risk_level      VARCHAR(50)
+    scanned_at      TIMESTAMP DEFAULT NOW()
+
+FINDINGS JSON STRUCTURE:
+  {
+    "id": "uuid",
+    "type": "RSA_WEAK_KEY",
+    "severity": "high",
+    "description": "RSA-1024 found, vulnerable to quantum attack",
+    "location": "line 42 / ssl-cert",
+    "recommendation": "Upgrade to RSA-4096 or migrate to CRYSTALS-Kyber",
+    "quantum_breakable": true,
+    "estimated_break_time": "2-5 years with quantum computer"
+  }
+
+NPM PACKAGES:
+  - ssl-checker          : SSL certificate analysis
+  - node-forge           : Crypto analysis
+  - @babel/parser        : JS/TS AST analysis
+
+
+--------------------------------------------------------------------------------
+FEATURE 3: Q-DAY PROBABILITY METER
+--------------------------------------------------------------------------------
+PAGE ROUTE  : /qday-tracker
+
+DESCRIPTION:
+  Aggregated probability of Q-Day based on expert predictions and quantum
+  hardware progress from IBM, Google, IonQ, etc.
+
+UI COMPONENTS:
+  - ProbabilityGauge.tsx    : Circular gauge (0-100% probability)
+  - QuantumProgressChart.tsx: Line chart showing qubit progress over years
+  - ExpertPredictions.tsx   : Cards with expert quotes and predictions
+  - CompanyProgress.tsx     : IBM vs Google vs IonQ progress tracker
+  - QDayScenarios.tsx       : Best case / Expected / Worst case scenarios
+  - ResearchPaperFeed.tsx   : Latest quantum computing papers
+
+BACKEND:
+  - GET /api/qday/probability       : Current Q-Day probability score
+  - GET /api/qday/progress          : Quantum hardware milestones data
+  - GET /api/qday/experts           : Expert predictions list
+  - GET /api/qday/scenarios         : Timeline scenarios data
+  - GET /api/qday/companies         : Company progress data
+
+DATA MODEL:
+  TABLE: qday_data
+    id              UUID PRIMARY KEY
+    data_type       VARCHAR(100)  -- 'probability' | 'milestone' | 'prediction'
+    value           JSONB
+    source          VARCHAR(200)
+    recorded_at     TIMESTAMP
+    updated_at      TIMESTAMP DEFAULT NOW()
+
+  TABLE: quantum_milestones
+    id              UUID PRIMARY KEY
+    company         VARCHAR(100)
+    qubit_count     INTEGER
+    year            INTEGER
+    milestone_name  VARCHAR(200)
+    description     TEXT
+    source_url      VARCHAR(500)
+
+PROBABILITY CALCULATION:
+  Score = weighted average of:
+    - Current qubit count vs required (4000+ for RSA-2048): 40% weight
+    - Error correction progress: 30% weight
+    - Expert consensus (survey data): 20% weight
+    - Funding & investment trends: 10% weight
+
+CHART DATA (Hardcoded baseline + updatable):
+  IBM Qubit Progress:
+    2019: 27 qubits
+    2020: 65 qubits
+    2021: 127 qubits
+    2022: 433 qubits
+    2023: 1121 qubits
+    2024: 1386 qubits
+    Target: 4000+ (Q-Day capable)
+
+
+--------------------------------------------------------------------------------
+FEATURE 4: QUANTUM-SAFE MIGRATION PLANNER
+--------------------------------------------------------------------------------
+PAGE ROUTE  : /migration-planner
+
+DESCRIPTION:
+  Multi-step form where user inputs company details and current tech stack.
+  Tool generates a complete migration roadmap with timeline and cost estimate.
+
+UI COMPONENTS:
+  - MigrationWizard.tsx         : 5-step wizard container
+  - Step1CompanyInfo.tsx        : Company size, industry, budget
+  - Step2CurrentStack.tsx       : Current encryption inventory
+  - Step3DataInventory.tsx      : What data needs protection
+  - Step4Priorities.tsx         : Which systems to migrate first
+  - Step5Results.tsx            : Full roadmap output
+  - MigrationRoadmapCard.tsx    : Individual roadmap item
+  - MigrationTimeline.tsx       : Visual timeline component
+  - CostEstimator.tsx           : Cost breakdown table
+  - MigrationPDFExport.tsx      : Export full plan as PDF
+
+BACKEND:
+  - POST /api/migration/generate        : Generate migration plan
+  - GET  /api/migration/plans           : User's saved plans
+  - GET  /api/migration/plan/:id        : Get specific plan
+  - DELETE /api/migration/plan/:id      : Delete a plan
+  - POST /api/migration/plan/:id/export : Export as PDF
+
+WIZARD STEPS:
+
+  STEP 1 - Company Info:
+    - Company size: Startup(1-50) / SME(51-500) / Enterprise(500+)
+    - Industry: Healthcare / Finance / Government / Tech / Other
+    - Annual security budget: <$10K / $10K-100K / $100K-1M / $1M+
+    - Compliance requirements: HIPAA / PCI-DSS / SOC2 / ISO27001 / NIST
+
+  STEP 2 - Current Encryption Stack:
+    - Web/API: RSA-1024 / RSA-2048 / RSA-4096 / ECC-256 / ECC-384
+    - Database: AES-128 / AES-256 / DES / 3DES / None
+    - Storage: None / Basic / Advanced
+    - Communication: TLS 1.0 / TLS 1.1 / TLS 1.2 / TLS 1.3
+    - Code signing: Yes/No, which algorithm
+
+  STEP 3 - Data Inventory:
+    - Data types: PII / Financial / Medical / Classified / IP / Public
+    - Data retention period: <1yr / 1-5yr / 5-10yr / 10yr+
+    - Data volume: Small / Medium / Large / Massive
+    - External sharing: Yes/No
+
+  STEP 4 - Migration Priorities:
+    - Critical systems first? Yes/No
+    - Budget constraint level: Low / Medium / High flexibility
+    - Team expertise: Beginner / Intermediate / Expert
+    - Timeline preference: ASAP / 1yr / 2yr / 3yr
+
+  STEP 5 - Generated Roadmap:
+    Phase 1 (0-3 months):   Inventory & Assessment
+    Phase 2 (3-6 months):   Pilot Migration (low-risk systems)
+    Phase 3 (6-12 months):  Core Systems Migration
+    Phase 4 (12-18 months): Legacy System Migration
+    Phase 5 (18-24 months): Full Validation & Compliance
+
+MIGRATION PLAN JSON STRUCTURE:
+  {
+    "company_profile": { ... },
+    "risk_summary": { "overall": "high", "score": 78 },
+    "phases": [
+      {
+        "phase": 1,
+        "title": "Inventory & Assessment",
+        "duration": "0-3 months",
+        "tasks": ["Audit all cryptographic assets", "..."],
+        "estimated_cost": "$5,000 - $15,000",
+        "priority": "critical",
+        "algorithms_to_adopt": ["CRYSTALS-Kyber-768", "CRYSTALS-Dilithium-3"]
+      }
+    ],
+    "total_estimated_cost": "$50,000 - $150,000",
+    "total_timeline": "18-24 months",
+    "recommendations": ["..."]
+  }
+
+DATA MODEL:
+  TABLE: migration_plans
+    id              UUID PRIMARY KEY
+    user_id         UUID REFERENCES users(id)
+    company_info    JSONB
+    current_stack   JSONB
+    data_inventory  JSONB
+    priorities      JSONB
+    generated_plan  JSONB
+    total_cost_min  INTEGER
+    total_cost_max  INTEGER
+    timeline_months INTEGER
+    created_at      TIMESTAMP DEFAULT NOW()
+
+
+--------------------------------------------------------------------------------
+FEATURE 5: ALGORITHM PLAYGROUND
+--------------------------------------------------------------------------------
+PAGE ROUTE  : /playground
+
+DESCRIPTION:
+  Live browser-based tool where users can type a message, encrypt it with RSA,
+  then simulate a quantum attack to decrypt it. Visual step-by-step breakdown.
+
+UI COMPONENTS:
+  - PlaygroundLayout.tsx        : Split-screen layout
+  - MessageInput.tsx            : Text area for message input
+  - EncryptionPanel.tsx         : Encrypt with RSA / Kyber
+  - DecryptionPanel.tsx         : Classical vs Quantum decrypt
+  - AttackVisualization.tsx     : Animated attack breakdown
+  - BitBreakdown.tsx            : Visual bit-by-bit analysis
+  - AlgorithmSelector.tsx       : Choose RSA-512/1024/2048 or Kyber
+  - SpeedComparison.tsx         : Real-time speed comparison bars
+  - StepByStepLog.tsx           : Console-style step log
+
+BACKEND:
+  - POST /api/playground/encrypt         : Encrypt message
+  - POST /api/playground/decrypt         : Decrypt ciphertext
+  - POST /api/playground/quantum-attack  : Simulate quantum attack
+  - GET  /api/playground/algorithms      : Available algorithms list
+
+PLAYGROUND FLOW:
+  1. User types: "Hello, my bank password is X123"
+  2. Selects: RSA-512 encryption
+  3. Clicks Encrypt → Shows: ciphertext hex string
+  4. Classical attack: Shows "Est. time: 2.3 million years"
+  5. Quantum attack (Shor's): Shows step-by-step:
+     - Step 1: Choose random a = 7
+     - Step 2: Find period r of a^x mod n
+     - Step 3: Compute GCD(a^r/2 ± 1, n)
+     - Step 4: Factors found: p=..., q=...
+     - Step 5: Compute phi(n), then d
+     - DECRYPTED: "Hello, my bank password is X123"
+  6. Then shows Kyber encryption → "Quantum-resistant!"
+
+SUPPORTED ALGORITHMS:
+  Classical (Vulnerable):
+    - RSA-512   (Demo only, very fast to break)
+    - RSA-1024  (Fast quantum break)
+    - RSA-2048  (Moderate quantum break)
+
+  Post-Quantum (Safe):
+    - CRYSTALS-Kyber-512
+    - CRYSTALS-Kyber-768
+    - CRYSTALS-Kyber-1024
+
+NPM PACKAGES:
+  - node-forge       : RSA operations in browser
+  - crypto (built-in): For demonstrations
+
+
+--------------------------------------------------------------------------------
+FEATURE 6: COMPLIANCE CHECKER
+--------------------------------------------------------------------------------
+PAGE ROUTE  : /compliance
+
+DESCRIPTION:
+  User selects their industry and inputs their current encryption setup.
+  Tool checks compliance against major standards and generates gap report.
+
+UI COMPONENTS:
+  - ComplianceForm.tsx          : Industry + encryption input form
+  - ComplianceResults.tsx       : Results grid
+  - ComplianceStandardCard.tsx  : Per-standard result (Pass/Fail/Warning)
+  - GapAnalysisTable.tsx        : What's missing vs required
+  - ComplianceReport.tsx        : Full downloadable report
+  - RemediationSteps.tsx        : How to fix each gap
+
+BACKEND:
+  - POST /api/compliance/check          : Run compliance check
+  - GET  /api/compliance/standards      : List all standards
+  - GET  /api/compliance/standard/:id   : Standard details
+  - GET  /api/compliance/history        : User check history
+  - POST /api/compliance/export         : Export as PDF
+
+SUPPORTED STANDARDS:
+  - NIST SP 800-208      : Quantum-safe cryptography guidelines
+  - NIST FIPS 203        : CRYSTALS-Kyber standard
+  - NIST FIPS 204        : CRYSTALS-Dilithium standard
+  - HIPAA                : Healthcare data protection
+  - PCI-DSS v4.0         : Payment card industry
+  - GDPR                 : EU data protection
+  - SOC 2 Type II        : Service organization controls
+  - ISO/IEC 27001:2022   : Information security management
+
+COMPLIANCE CHECK LOGIC:
+  For each standard, check:
+    1. Key size requirements met?
+    2. Approved algorithms used?
+    3. TLS version acceptable?
+    4. Key rotation policy?
+    5. Quantum-safe roadmap required?
+
+  Result per standard:
+    PASS    : All requirements met
+    WARNING : Some requirements met, action needed
+    FAIL    : Critical requirements not met
+    N/A     : Standard not applicable to industry
+
+DATA MODEL:
+  TABLE: compliance_checks
+    id              UUID PRIMARY KEY
+    user_id         UUID REFERENCES users(id)
+    industry        VARCHAR(100)
+    encryption_data JSONB
+    results         JSONB
+    overall_status  VARCHAR(50)
+    checked_at      TIMESTAMP DEFAULT NOW()
+
+  TABLE: compliance_standards
+    id              UUID PRIMARY KEY
+    code            VARCHAR(50)   -- 'NIST-800-208', 'HIPAA', etc.
+    name            VARCHAR(200)
+    description     TEXT
+    requirements    JSONB
+    applicable_to   JSONB         -- array of industries
+    quantum_relevant BOOLEAN
+    last_updated    TIMESTAMP
+
+
+--------------------------------------------------------------------------------
+FEATURE 7: COMMUNITY & LEADERBOARD
+--------------------------------------------------------------------------------
+PAGE ROUTE  : /community
+
+DESCRIPTION:
+  Gamified learning system with quizzes, points, certifications,
+  and organizational leaderboard.
+
+UI COMPONENTS:
+  - CommunityDashboard.tsx      : Main community hub
+  - QuizModule.tsx              : Interactive quiz component
+  - QuizQuestion.tsx            : Single question card
+  - QuizResults.tsx             : Score and badge display
+  - LeaderboardTable.tsx        : Top users/organizations
+  - BadgeCollection.tsx         : User's earned badges
+  - CertificateCard.tsx         : Digital certificate display
+  - PointsHistory.tsx           : Points earned timeline
+  - ShareCard.tsx               : LinkedIn/Twitter share card
+
+BACKEND:
+  - GET  /api/community/leaderboard     : Top 100 users
+  - GET  /api/community/my-rank         : User's current rank
+  - GET  /api/quiz/list                 : Available quizzes
+  - GET  /api/quiz/:id                  : Get quiz questions
+  - POST /api/quiz/:id/submit           : Submit quiz answers
+  - GET  /api/badges/list               : All available badges
+  - GET  /api/badges/my-badges          : User's earned badges
+  - POST /api/certificates/generate     : Generate certificate
+
+QUIZ TOPICS:
+  Quiz 1: RSA Basics (10 questions, 100 pts)
+  Quiz 2: Shor's Algorithm (10 questions, 150 pts)
+  Quiz 3: HNDL Attack Awareness (10 questions, 100 pts)
+  Quiz 4: Post-Quantum Cryptography (15 questions, 200 pts)
+  Quiz 5: Q-Day & Timeline (10 questions, 150 pts)
+  Quiz 6: Compliance & Standards (15 questions, 200 pts)
+  Quiz 7: Advanced Quantum Security (20 questions, 300 pts)
+
+BADGES:
+  - Quantum Beginner     : Complete first quiz
+  - RSA Expert           : Score 100% on RSA quiz
+  - Quantum Aware        : Complete all basic quizzes
+  - Security Champion    : Run 10 risk assessments
+  - Crypto Scanner Pro   : Complete 5 URL scans
+  - Compliance Master    : Pass all compliance checks
+  - Novocrypt Pro   : Earn 1000+ points
+  - Top Defender         : Reach top 10 leaderboard
+
+CERTIFICATIONS:
+  - Quantum Security Awareness (Basic)
+  - Quantum Risk Assessment Professional
+  - Post-Quantum Cryptography Specialist
+
+POINTS SYSTEM:
+  - Complete quiz         : 50-300 points
+  - Perfect quiz score    : 2x multiplier
+  - Daily login           : 10 points
+  - Run risk assessment   : 25 points
+  - Complete lab session  : 30 points
+  - Run compliance check  : 40 points
+  - Share result          : 15 points
+  - Refer a friend        : 100 points
+
+DATA MODEL:
+  TABLE: user_points
+    id          UUID PRIMARY KEY
+    user_id     UUID REFERENCES users(id)
+    points      INTEGER DEFAULT 0
+    level       VARCHAR(50)
+    updated_at  TIMESTAMP DEFAULT NOW()
+
+  TABLE: quiz_attempts
+    id            UUID PRIMARY KEY
+    user_id       UUID REFERENCES users(id)
+    quiz_id       UUID
+    score         INTEGER
+    total         INTEGER
+    percentage    DECIMAL
+    time_taken    INTEGER  -- seconds
+    answers       JSONB
+    completed_at  TIMESTAMP DEFAULT NOW()
+
+  TABLE: user_badges
+    id          UUID PRIMARY KEY
+    user_id     UUID REFERENCES users(id)
+    badge_id    VARCHAR(100)
+    earned_at   TIMESTAMP DEFAULT NOW()
+
+  TABLE: quizzes
+    id          UUID PRIMARY KEY
+    title       VARCHAR(200)
+    topic       VARCHAR(100)
+    difficulty  VARCHAR(50)
+    points      INTEGER
+    questions   JSONB
+    is_active   BOOLEAN DEFAULT TRUE
+
+
+--------------------------------------------------------------------------------
+FEATURE 8: QUANTUMBOT AI CHATBOT
+--------------------------------------------------------------------------------
+PAGE ROUTE  : /chat (+ floating widget on all pages)
+
+DESCRIPTION:
+  AI-powered chatbot that answers quantum security questions, provides
+  personalized risk guidance, and helps users navigate the platform.
+
+UI COMPONENTS:
+  - ChatbotWidget.tsx        : Floating button + chat window (all pages)
+  - ChatWindow.tsx           : Full chat interface
+  - ChatMessage.tsx          : Individual message bubble
+  - ChatInput.tsx            : Message input with send button
+  - ChatSuggestions.tsx      : Quick question suggestion chips
+  - ChatbotPage.tsx          : Full-page chat experience (/chat)
+  - TypingIndicator.tsx      : "QuantumBot is thinking..." animation
+
+BACKEND:
+  - POST /api/chatbot/message       : Send message, get response
+  - GET  /api/chatbot/history       : Chat history for user
+  - DELETE /api/chatbot/history     : Clear chat history
+  - GET  /api/chatbot/suggestions   : Context-aware suggestions
+
+AI INTEGRATION:
+  Provider  : OpenAI GPT-4o API (primary)
+  Fallback  : Claude API (anthropic)
+  Model     : gpt-4o-mini (cost efficient)
+
+SYSTEM PROMPT FOR BOT:
+  "You are QuantumBot, an expert AI assistant for the Novocrypt platform.
+   You specialize in quantum computing threats, RSA cryptography, Shor's
+   algorithm, HNDL attacks, Q-Day timeline, and post-quantum cryptography.
+   You help users understand their security risks and guide them through
+   the platform. Keep answers concise, accurate, and actionable.
+   Always recommend post-quantum migration when appropriate."
+
+SUGGESTED QUESTIONS (Chips):
+  - "Am I safe from quantum attacks?"
+  - "What is HNDL attack?"
+  - "When is Q-Day?"
+  - "How does Shor's algorithm work?"
+  - "What is CRYSTALS-Kyber?"
+  - "How do I migrate to post-quantum?"
+  - "Is my RSA-2048 safe?"
+  - "What algorithms does NIST recommend?"
+
+CONTEXT AWARENESS:
+  Bot knows:
+    - User's last risk score (if logged in)
+    - Last scan results
+    - User's industry
+    - Current page context
+
+ENV REQUIRED:
+  OPENAI_API_KEY=sk-...
+  OPENAI_MODEL=gpt-4o-mini
+  CHATBOT_MAX_TOKENS=500
+  CHATBOT_HISTORY_LIMIT=20
+
+DATA MODEL:
+  TABLE: chat_sessions
+    id          UUID PRIMARY KEY
+    user_id     UUID REFERENCES users(id)
+    created_at  TIMESTAMP DEFAULT NOW()
+
+  TABLE: chat_messages
+    id          UUID PRIMARY KEY
+    session_id  UUID REFERENCES chat_sessions(id)
+    role        VARCHAR(20)  -- 'user' | 'assistant'
+    content     TEXT
+    tokens_used INTEGER
+    created_at  TIMESTAMP DEFAULT NOW()
+
+
+================================================================================
+SECTION 3: UPDATED PROJECT STRUCTURE (ADVANCED)
+================================================================================
+
+novocrypt/
+├── frontend/
+│   └── src/
+│       ├── components/
+│       │   ├── threats/
+│       │   │   ├── ThreatFeed.tsx
+│       │   │   ├── ThreatLevelBadge.tsx
+│       │   │   ├── GovernmentAdvisory.tsx
+│       │   │   ├── VendorAlert.tsx
+│       │   │   └── ThreatFilterBar.tsx
+│       │   │
+│       │   ├── scanner/
+│       │   │   ├── ScannerTabs.tsx
+│       │   │   ├── URLScanForm.tsx
+│       │   │   ├── CodeScanForm.tsx
+│       │   │   ├── ScanResults.tsx
+│       │   │   ├── ScanVulnerabilityCard.tsx
+│       │   │   ├── ScanSummaryBadge.tsx
+│       │   │   └── ScanHistoryList.tsx
+│       │   │
+│       │   ├── qday/
+│       │   │   ├── ProbabilityGauge.tsx
+│       │   │   ├── QuantumProgressChart.tsx
+│       │   │   ├── ExpertPredictions.tsx
+│       │   │   ├── CompanyProgress.tsx
+│       │   │   ├── QDayScenarios.tsx
+│       │   │   └── ResearchPaperFeed.tsx
+│       │   │
+│       │   ├── migration/
+│       │   │   ├── MigrationWizard.tsx
+│       │   │   ├── Step1CompanyInfo.tsx
+│       │   │   ├── Step2CurrentStack.tsx
+│       │   │   ├── Step3DataInventory.tsx
+│       │   │   ├── Step4Priorities.tsx
+│       │   │   ├── Step5Results.tsx
+│       │   │   ├── MigrationRoadmapCard.tsx
+│       │   │   ├── MigrationTimeline.tsx
+│       │   │   ├── CostEstimator.tsx
+│       │   │   └── MigrationPDFExport.tsx
+│       │   │
+│       │   ├── playground/
+│       │   │   ├── PlaygroundLayout.tsx
+│       │   │   ├── MessageInput.tsx
+│       │   │   ├── EncryptionPanel.tsx
+│       │   │   ├── DecryptionPanel.tsx
+│       │   │   ├── AttackVisualization.tsx
+│       │   │   ├── BitBreakdown.tsx
+│       │   │   ├── AlgorithmSelector.tsx
+│       │   │   ├── SpeedComparison.tsx
+│       │   │   └── StepByStepLog.tsx
+│       │   │
+│       │   ├── compliance/
+│       │   │   ├── ComplianceForm.tsx
+│       │   │   ├── ComplianceResults.tsx
+│       │   │   ├── ComplianceStandardCard.tsx
+│       │   │   ├── GapAnalysisTable.tsx
+│       │   │   ├── ComplianceReport.tsx
+│       │   │   └── RemediationSteps.tsx
+│       │   │
+│       │   ├── community/
+│       │   │   ├── CommunityDashboard.tsx
+│       │   │   ├── QuizModule.tsx
+│       │   │   ├── QuizQuestion.tsx
+│       │   │   ├── QuizResults.tsx
+│       │   │   ├── LeaderboardTable.tsx
+│       │   │   ├── BadgeCollection.tsx
+│       │   │   ├── CertificateCard.tsx
+│       │   │   ├── PointsHistory.tsx
+│       │   │   └── ShareCard.tsx
+│       │   │
+│       │   └── chatbot/
+│       │       ├── ChatbotWidget.tsx
+│       │       ├── ChatWindow.tsx
+│       │       ├── ChatMessage.tsx
+│       │       ├── ChatInput.tsx
+│       │       ├── ChatSuggestions.tsx
+│       │       └── TypingIndicator.tsx
+│       │
+│       ├── pages/
+│       │   ├── Threats.tsx
+│       │   ├── Scanner.tsx
+│       │   ├── QDayTracker.tsx
+│       │   ├── MigrationPlanner.tsx
+│       │   ├── Playground.tsx
+│       │   ├── Compliance.tsx
+│       │   ├── Community.tsx
+│       │   └── Chat.tsx
+│       │
+│       ├── hooks/
+│       │   ├── useThreatFeed.ts
+│       │   ├── useScanner.ts
+│       │   ├── useQDay.ts
+│       │   ├── useMigration.ts
+│       │   ├── usePlayground.ts
+│       │   ├── useCompliance.ts
+│       │   ├── useCommunity.ts
+│       │   └── useChatbot.ts
+│       │
+│       ├── services/
+│       │   ├── threatService.ts
+│       │   ├── scannerService.ts
+│       │   ├── qdayService.ts
+│       │   ├── migrationService.ts
+│       │   ├── playgroundService.ts
+│       │   ├── complianceService.ts
+│       │   ├── communityService.ts
+│       │   └── chatbotService.ts
+│       │
+│       ├── store/
+│       │   ├── threatStore.ts
+│       │   ├── scannerStore.ts
+│       │   ├── migrationStore.ts
+│       │   ├── playgroundStore.ts
+│       │   ├── complianceStore.ts
+│       │   ├── communityStore.ts
+│       │   └── chatbotStore.ts
+│       │
+│       └── types/
+│           ├── threat.types.ts
+│           ├── scanner.types.ts
+│           ├── qday.types.ts
+│           ├── migration.types.ts
+│           ├── playground.types.ts
+│           ├── compliance.types.ts
+│           ├── community.types.ts
+│           └── chatbot.types.ts
+│
+└── backend/
+    └── src/
+        ├── routes/
+        │   ├── threats.routes.ts
+        │   ├── scanner.routes.ts
+        │   ├── qday.routes.ts
+        │   ├── migration.routes.ts
+        │   ├── playground.routes.ts
+        │   ├── compliance.routes.ts
+        │   ├── community.routes.ts
+        │   ├── quiz.routes.ts
+        │   ├── badges.routes.ts
+        │   └── chatbot.routes.ts
+        │
+        ├── controllers/
+        │   ├── threats.controller.ts
+        │   ├── scanner.controller.ts
+        │   ├── qday.controller.ts
+        │   ├── migration.controller.ts
+        │   ├── playground.controller.ts
+        │   ├── compliance.controller.ts
+        │   ├── community.controller.ts
+        │   ├── quiz.controller.ts
+        │   ├── badges.controller.ts
+        │   └── chatbot.controller.ts
+        │
+        ├── services/
+        │   ├── threats.service.ts
+        │   ├── scanner.service.ts
+        │   ├── qday.service.ts
+        │   ├── migration.service.ts
+        │   ├── playground.service.ts
+        │   ├── compliance.service.ts
+        │   ├── community.service.ts
+        │   ├── quiz.service.ts
+        │   └── chatbot.service.ts
+        │
+        ├── jobs/
+        │   ├── threatFetcher.job.ts
+        │   └── qdayUpdater.job.ts
+        │
+        └── utils/
+            ├── sslChecker.util.ts
+            ├── codeScanner.util.ts
+            ├── complianceEngine.util.ts
+            ├── migrationPlanner.util.ts
+            └── openai.util.ts
+
+
+================================================================================
+SECTION 4: UPDATED ENV VARIABLES
+================================================================================
+
+  BACKEND (.env additions):
+    OPENAI_API_KEY=sk-your-openai-key
+    OPENAI_MODEL=gpt-4o-mini
+    CHATBOT_MAX_TOKENS=500
+    NEWSAPI_KEY=your-newsapi-key
+    CRON_THREAT_FETCH=0 */6 * * *
+    CRON_QDAY_UPDATE=0 0 * * 1
+
+
+================================================================================
+SECTION 5: UPDATED TECH STACK (Additional Packages)
+================================================================================
+
+  FRONTEND (new additions):
+    - @monaco-editor/react   : Code editor for scanner
+    - framer-motion          : Enhanced animations
+    - react-circular-gauge   : Probability gauge component
+    - react-confetti         : Badge celebration animation
+    - socket.io-client       : Real-time threat feed updates
+
+  BACKEND (new additions):
+    - openai                 : ChatGPT API integration
+    - ssl-checker            : SSL/TLS certificate analysis
+    - node-forge             : Cryptographic operations
+    - node-cron              : Scheduled jobs
+    - @babel/parser          : JavaScript AST analysis
+    - axios                  : External API calls (NewsAPI)
+    - socket.io              : Real-time updates
+    - puppeteer              : Website scanning (headless browser)
+
+
+================================================================================
+SECTION 6: CURSOR CHAT PROMPT FOR ADVANCED FEATURES
+================================================================================
+
+PASTE THIS IN CURSOR AFTER MVP IS COMPLETE:
+
+You are an expert full-stack developer continuing work on the Novocrypt
+platform. The MVP (v1.0) is already built with the structure from
+novocrypt-docs.txt. Now implement the ADVANCED FEATURES from this file
+(novocrypt-advanced-features.txt).
+
+=== RULES ===
+1. Do NOT break any existing MVP code
+2. Add new features as separate modules
+3. Every new file must have complete working code
+4. Connect all new routes in backend/src/routes/index.ts
+5. Add all new pages to frontend/src/App.tsx router
+6. Add new nav items to Navbar.tsx
+7. Follow same design system as MVP (colors, typography, components)
+8. All new DB tables must be added to prisma/schema.prisma
+9. Add new env variables to .env.example files
+10. Do NOT ask questions - use documentation to decide
+
+=== IMPLEMENTATION ORDER ===
+
+PHASE A - Database & Backend Setup:
+1. Update prisma/schema.prisma with all new tables
+2. backend/src/utils/openai.util.ts
+3. backend/src/utils/sslChecker.util.ts
+4. backend/src/utils/codeScanner.util.ts
+5. backend/src/utils/complianceEngine.util.ts
+6. backend/src/utils/migrationPlanner.util.ts
+7. backend/src/jobs/threatFetcher.job.ts
+8. backend/src/jobs/qdayUpdater.job.ts
+
+PHASE B - Feature 1: Threat Intelligence:
+9.  backend/src/controllers/threats.controller.ts
+10. backend/src/services/threats.service.ts
+11. backend/src/routes/threats.routes.ts
+12. frontend/src/types/threat.types.ts
+13. frontend/src/services/threatService.ts
+14. frontend/src/store/threatStore.ts
+15. frontend/src/hooks/useThreatFeed.ts
+16. frontend/src/components/threats/ThreatFeed.tsx
+17. frontend/src/components/threats/ThreatLevelBadge.tsx
+18. frontend/src/components/threats/GovernmentAdvisory.tsx
+19. frontend/src/components/threats/VendorAlert.tsx
+20. frontend/src/components/threats/ThreatFilterBar.tsx
+21. frontend/src/pages/Threats.tsx
+
+PHASE C - Feature 2: Cryptography Scanner:
+22. backend/src/controllers/scanner.controller.ts
+23. backend/src/services/scanner.service.ts
+24. backend/src/routes/scanner.routes.ts
+25. frontend/src/types/scanner.types.ts
+26. frontend/src/services/scannerService.ts
+27. frontend/src/store/scannerStore.ts
+28. frontend/src/hooks/useScanner.ts
+29. frontend/src/components/scanner/ScannerTabs.tsx
+30. frontend/src/components/scanner/URLScanForm.tsx
+31. frontend/src/components/scanner/CodeScanForm.tsx
+32. frontend/src/components/scanner/ScanResults.tsx
+33. frontend/src/components/scanner/ScanVulnerabilityCard.tsx
+34. frontend/src/components/scanner/ScanSummaryBadge.tsx
+35. frontend/src/components/scanner/ScanHistoryList.tsx
+36. frontend/src/pages/Scanner.tsx
+
+PHASE D - Feature 3: Q-Day Tracker:
+37. backend/src/controllers/qday.controller.ts
+38. backend/src/services/qday.service.ts
+39. backend/src/routes/qday.routes.ts
+40. frontend/src/components/qday/ProbabilityGauge.tsx
+41. frontend/src/components/qday/QuantumProgressChart.tsx
+42. frontend/src/components/qday/ExpertPredictions.tsx
+43. frontend/src/components/qday/CompanyProgress.tsx
+44. frontend/src/components/qday/QDayScenarios.tsx
+45. frontend/src/pages/QDayTracker.tsx
+
+PHASE E - Feature 4: Migration Planner:
+46. backend/src/controllers/migration.controller.ts
+47. backend/src/services/migration.service.ts
+48. backend/src/routes/migration.routes.ts
+49. frontend/src/components/migration/MigrationWizard.tsx
+50. frontend/src/components/migration/Step1CompanyInfo.tsx
+51. frontend/src/components/migration/Step2CurrentStack.tsx
+52. frontend/src/components/migration/Step3DataInventory.tsx
+53. frontend/src/components/migration/Step4Priorities.tsx
+54. frontend/src/components/migration/Step5Results.tsx
+55. frontend/src/components/migration/MigrationRoadmapCard.tsx
+56. frontend/src/components/migration/MigrationTimeline.tsx
+57. frontend/src/components/migration/CostEstimator.tsx
+58. frontend/src/pages/MigrationPlanner.tsx
+
+PHASE F - Feature 5: Algorithm Playground:
+59. backend/src/controllers/playground.controller.ts
+60. backend/src/routes/playground.routes.ts
+61. frontend/src/components/playground/PlaygroundLayout.tsx
+62. frontend/src/components/playground/MessageInput.tsx
+63. frontend/src/components/playground/EncryptionPanel.tsx
+64. frontend/src/components/playground/DecryptionPanel.tsx
+65. frontend/src/components/playground/AttackVisualization.tsx
+66. frontend/src/components/playground/AlgorithmSelector.tsx
+67. frontend/src/components/playground/SpeedComparison.tsx
+68. frontend/src/components/playground/StepByStepLog.tsx
+69. frontend/src/pages/Playground.tsx
+
+PHASE G - Feature 6: Compliance Checker:
+70. backend/src/controllers/compliance.controller.ts
+71. backend/src/services/compliance.service.ts
+72. backend/src/routes/compliance.routes.ts
+73. frontend/src/components/compliance/ComplianceForm.tsx
+74. frontend/src/components/compliance/ComplianceResults.tsx
+75. frontend/src/components/compliance/ComplianceStandardCard.tsx
+76. frontend/src/components/compliance/GapAnalysisTable.tsx
+77. frontend/src/components/compliance/RemediationSteps.tsx
+78. frontend/src/pages/Compliance.tsx
+
+PHASE H - Feature 7: Community & Leaderboard:
+79. backend/src/controllers/community.controller.ts
+80. backend/src/controllers/quiz.controller.ts
+81. backend/src/controllers/badges.controller.ts
+82. backend/src/services/community.service.ts
+83. backend/src/services/quiz.service.ts
+84. backend/src/routes/community.routes.ts
+85. backend/src/routes/quiz.routes.ts
+86. frontend/src/components/community/CommunityDashboard.tsx
+87. frontend/src/components/community/QuizModule.tsx
+88. frontend/src/components/community/QuizQuestion.tsx
+89. frontend/src/components/community/QuizResults.tsx
+90. frontend/src/components/community/LeaderboardTable.tsx
+91. frontend/src/components/community/BadgeCollection.tsx
+92. frontend/src/components/community/CertificateCard.tsx
+93. frontend/src/components/community/PointsHistory.tsx
+94. frontend/src/pages/Community.tsx
+
+PHASE I - Feature 8: QuantumBot Chatbot:
+95.  backend/src/controllers/chatbot.controller.ts
+96.  backend/src/services/chatbot.service.ts
+97.  backend/src/routes/chatbot.routes.ts
+98.  frontend/src/types/chatbot.types.ts
+99.  frontend/src/services/chatbotService.ts
+100. frontend/src/store/chatbotStore.ts
+101. frontend/src/hooks/useChatbot.ts
+102. frontend/src/components/chatbot/ChatbotWidget.tsx
+103. frontend/src/components/chatbot/ChatWindow.tsx
+104. frontend/src/components/chatbot/ChatMessage.tsx
+105. frontend/src/components/chatbot/ChatInput.tsx
+106. frontend/src/components/chatbot/ChatSuggestions.tsx
+107. frontend/src/components/chatbot/TypingIndicator.tsx
+108. frontend/src/pages/Chat.tsx
+
+PHASE J - Integration & Updates:
+109. Update frontend/src/App.tsx          (add all new routes)
+110. Update frontend/src/components/layout/Navbar.tsx  (new nav items)
+111. Update backend/src/routes/index.ts   (register all new routes)
+112. Update backend/prisma/schema.prisma  (all new tables)
+113. Update backend/.env.example          (new env vars)
+114. Update frontend/.env.example         (new env vars)
+
+=== START WITH PHASE A ===
+Implement all 114 files completely. No placeholders. No TODOs.
+After each phase confirm and continue automatically.
+
+
+================================================================================
+SECTION 7: IMPLEMENTATION TIMELINE
+================================================================================
+
+  WEEK 1  : Phase A+B  - DB setup + Threat Intelligence
+  WEEK 2  : Phase C    - Cryptography Scanner
+  WEEK 3  : Phase D+E  - Q-Day Tracker + Migration Planner
+  WEEK 4  : Phase F    - Algorithm Playground
+  WEEK 5  : Phase G    - Compliance Checker
+  WEEK 6  : Phase H    - Community & Leaderboard
+  WEEK 7  : Phase I    - QuantumBot Chatbot
+  WEEK 8  : Phase J    - Integration, Testing, Deployment
+
+
+================================================================================
+SECTION 8: COMPLETE PLATFORM OVERVIEW (MVP + ADVANCED)
+================================================================================
+
+  TOTAL PAGES     : 18
+  TOTAL FEATURES  : 14
+  TOTAL FILES     : ~240 files
+  ESTIMATED USERS : Students, Devs, Security Pros, Enterprises
+
+  PAGES LIST:
+    /                   - Home (Awareness Hub)
+    /lab                - Algorithm Lab
+    /risk               - Risk Calculator
+    /algorithms         - Algorithm Comparison
+    /learn              - Learning Center
+    /threats            - Threat Intelligence Feed    [NEW]
+    /scanner            - Cryptography Scanner        [NEW]
+    /qday-tracker       - Q-Day Probability Meter     [NEW]
+    /migration-planner  - Migration Planner           [NEW]
+    /playground         - Algorithm Playground        [NEW]
+    /compliance         - Compliance Checker          [NEW]
+    /community          - Community & Leaderboard     [NEW]
+    /chat               - QuantumBot Chat             [NEW]
+    /dashboard          - User Dashboard
+    /login              - Login
+    /register           - Register
+    /404                - Not Found
+
+================================================================================
+END OF ADVANCED FEATURES DOCUMENT
+================================================================================             

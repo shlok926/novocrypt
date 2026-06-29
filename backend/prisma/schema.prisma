@@ -1,0 +1,261 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model RiskAssessment {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  industry        String   @map("industry") @db.VarChar(100)
+  dataType        String   @map("data_type") @db.VarChar(100)
+  encryption      String   @map("encryption") @db.VarChar(100)
+  dataLifetime    Int      @map("data_lifetime")
+  riskScore       Int      @map("risk_score")
+  riskLevel       String   @map("risk_level") @db.VarChar(50)
+  recommendations Json
+  createdAt       DateTime @default(now()) @map("created_at")
+  user            User     @relation("RiskAssessments", fields: [userId], references: [id], onDelete: Cascade)
+  reports         Report[]
+
+  @@map("risk_assessments")
+}
+
+model LabSession {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  pValue         Int      @map("p_value")
+  qValue         Int      @map("q_value")
+  eValue         Int      @map("e_value")
+  nValue         Int      @map("n_value")
+  phiN           Int      @map("phi_n")
+  privateKeyD    Int      @map("private_key_d")
+  keySizeBits    Int      @map("key_size_bits")
+  classicalTimeMs Decimal @map("classical_time_ms") @db.Decimal(10, 2)
+  quantumSteps   Int      @map("quantum_steps")
+  quantumTimeMs  Decimal  @map("quantum_time_ms") @db.Decimal(10, 2)
+  createdAt      DateTime @default(now()) @map("created_at")
+  user           User     @relation("LabSessions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("lab_sessions")
+}
+
+model Report {
+  id           String         @id @default(uuid()) @db.Uuid
+  userId       String         @map("user_id") @db.Uuid
+  assessmentId String         @map("assessment_id") @db.Uuid
+  fileUrl      String         @map("file_url") @db.VarChar(500)
+  createdAt    DateTime       @default(now()) @map("created_at")
+  user         User           @relation("Reports", fields: [userId], references: [id], onDelete: Cascade)
+  assessment   RiskAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+// ================ ADVANCED FEATURES - NEW TABLES ================
+
+// FEATURE 1: THREAT INTELLIGENCE FEED
+model ThreatItem {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String   @db.VarChar(500)
+  summary     String   @db.Text
+  source      String   @db.VarChar(200)
+  category    String   @db.VarChar(100) // 'advisory' | 'research' | 'breach' | 'vendor'
+  severity    String   @db.VarChar(50) // 'low' | 'medium' | 'high' | 'critical'
+  url         String   @db.VarChar(500)
+  publishedAt DateTime @map("published_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("threat_items")
+}
+
+model ThreatSubscription {
+  id                  String   @id @default(uuid()) @db.Uuid
+  email               String   @db.VarChar(255)
+  severityThreshold   String   @map("severity_threshold") @db.VarChar(50)
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@map("threat_subscriptions")
+}
+
+// FEATURE 2: CRYPTOGRAPHY SCANNER
+model ScanResult {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  scanType    String   @map("scan_type") @db.VarChar(50) // 'url' | 'code' | 'api'
+  inputTarget String   @map("input_target") @db.Text
+  findings    Json     @db.JsonB
+  overallScore Int     @map("overall_score")
+  riskLevel   String   @map("risk_level") @db.VarChar(50)
+  scannedAt   DateTime @default(now()) @map("scanned_at")
+  user        User     @relation("ScanResults", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("scan_results")
+}
+
+// FEATURE 3: Q-DAY PROBABILITY METER
+model QDayData {
+  id        String   @id @default(uuid()) @db.Uuid
+  dataType  String   @map("data_type") @db.VarChar(100) // 'probability' | 'milestone' | 'prediction'
+  value     Json     @db.JsonB
+  source    String   @db.VarChar(200)
+  recordedAt DateTime @map("recorded_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("qday_data")
+}
+
+model QuantumMilestone {
+  id             String   @id @default(uuid()) @db.Uuid
+  company        String   @db.VarChar(100)
+  qubitCount     Int      @map("qubit_count")
+  year           Int
+  milestoneName  String   @map("milestone_name") @db.VarChar(200)
+  description    String   @db.Text
+  sourceUrl      String   @map("source_url") @db.VarChar(500)
+
+  @@map("quantum_milestones")
+}
+
+// FEATURE 4: MIGRATION PLANNER
+model MigrationPlan {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  companyInfo  Json     @map("company_info") @db.JsonB
+  currentStack Json     @map("current_stack") @db.JsonB
+  dataInventory Json    @map("data_inventory") @db.JsonB
+  priorities   Json     @db.JsonB
+  generatedPlan Json    @map("generated_plan") @db.JsonB
+  totalCostMin Int      @map("total_cost_min")
+  totalCostMax Int      @map("total_cost_max")
+  timelineMonths Int    @map("timeline_months")
+  createdAt    DateTime @default(now()) @map("created_at")
+  user         User     @relation("MigrationPlans", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("migration_plans")
+}
+
+// FEATURE 6: COMPLIANCE CHECKER
+model ComplianceCheck {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  industry        String   @db.VarChar(100)
+  encryptionData  Json     @map("encryption_data") @db.JsonB
+  results         Json     @db.JsonB
+  overallStatus   String   @map("overall_status") @db.VarChar(50)
+  checkedAt       DateTime @default(now()) @map("checked_at")
+  user            User     @relation("ComplianceChecks", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("compliance_checks")
+}
+
+model ComplianceStandard {
+  id              String   @id @default(uuid()) @db.Uuid
+  code            String   @db.VarChar(50) // 'NIST-800-208', 'HIPAA', etc.
+  name            String   @db.VarChar(200)
+  description     String   @db.Text
+  requirements    Json     @db.JsonB
+  applicableTo    Json     @map("applicable_to") @db.JsonB // array of industries
+  quantumRelevant Boolean  @map("quantum_relevant")
+  lastUpdated     DateTime @default(now()) @updatedAt @map("last_updated")
+
+  @@map("compliance_standards")
+}
+
+// FEATURE 7: COMMUNITY & LEADERBOARD
+model UserPoints {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  points    Int      @default(0)
+  level     String   @db.VarChar(50)
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  user      User     @relation("UserPoints", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_points")
+}
+
+model QuizAttempt {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  quizId     String   @map("quiz_id") @db.Uuid
+  score      Int
+  total      Int
+  percentage Decimal  @db.Decimal(5, 2)
+  timeTaken  Int      @map("time_taken") // seconds
+  answers    Json     @db.JsonB
+  completedAt DateTime @default(now()) @map("completed_at")
+  user       User     @relation("QuizAttempts", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_attempts")
+}
+
+model UserBadge {
+  id       String   @id @default(uuid()) @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  badgeId  String   @map("badge_id") @db.VarChar(100)
+  earnedAt DateTime @default(now()) @map("earned_at")
+  user     User     @relation("UserBadges", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_badges")
+}
+
+model Quiz {
+  id         String   @id @default(uuid()) @db.Uuid
+  title      String   @db.VarChar(200)
+  topic      String   @db.VarChar(100)
+  difficulty String   @db.VarChar(50)
+  points     Int
+  questions  Json     @db.JsonB
+  isActive   Boolean  @default(true) @map("is_active")
+
+  @@map("quizzes")
+}
+
+// FEATURE 8: QUANTUMBOT CHATBOT
+model ChatSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  messages  ChatMessage[]
+  user      User     @relation("ChatSessions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  role      String   @db.VarChar(20) // 'user' | 'assistant'
+  content   String   @db.Text
+  tokensUsed Int     @map("tokens_used")
+  createdAt DateTime @default(now()) @map("created_at")
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
+
+// Add relations to User model
+model User {
+  id              String           @id @default(uuid()) @db.Uuid
+  email           String           @unique @db.VarChar(255)
+  passwordHash    String           @map("password_hash") @db.VarChar(255)
+  name            String?          @db.VarChar(255)
+  role            String           @default("free") @db.VarChar(50)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  riskAssessments RiskAssessment[] @relation("RiskAssessments")
+  labSessions     LabSession[]     @relation("LabSessions")
+  reports         Report[]         @relation("Reports")
+  scanResults     ScanResult[]     @relation("ScanResults")
+  migrationPlans  MigrationPlan[]  @relation("MigrationPlans")
+  complianceChecks ComplianceCheck[] @relation("ComplianceChecks")
+  userPoints      UserPoints?      @relation("UserPoints")
+  quizAttempts    QuizAttempt[]    @relation("QuizAttempts")
+  userBadges      UserBadge[]      @relation("UserBadges")
+  chatSessions    ChatSession[]    @relation("ChatSessions")
+
+  @@map("users")
+}
