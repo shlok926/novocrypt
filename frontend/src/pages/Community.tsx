@@ -11,6 +11,7 @@ export default function Community() {
   const [trending, setTrending] = useState<TrendingTopic[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
   const [wsStatus, setWsStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
+  const [selectedThread, setSelectedThread] = useState<CommunityThread | null>(null);
   
   // New thread form state
   const [showNewThreadForm, setShowNewThreadForm] = useState(false);
@@ -116,6 +117,54 @@ export default function Community() {
     ));
     
     await communityService.upvoteThread(threadId);
+    
+    // Also update selectedThread if it's currently open
+    if (selectedThread && selectedThread.id === threadId) {
+      setSelectedThread({ ...selectedThread, upvotes: selectedThread.upvotes + 1 });
+    }
+  };
+
+  // Dummy replies state for interaction
+  const [replyText, setReplyText] = useState('');
+  const [dummyReplies, setDummyReplies] = useState<any[]>([]);
+
+  // When a thread is selected, generate some dummy replies for demo
+  const handleSelectThread = (thread: CommunityThread) => {
+    setSelectedThread(thread);
+    setDummyReplies([
+      {
+        id: 'reply-1',
+        author: { username: 'SecurityMaven', avatar: '🛡️', knowledgeLevel: 'expert' },
+        content: 'This is a great question. In our migration, we found that focusing on crypto-agility first was the key. Have you looked into the hybrid approach?',
+        createdAt: '1 hour ago'
+      },
+      {
+        id: 'reply-2',
+        author: { username: 'CryptoGuardian', avatar: '🔐', knowledgeLevel: 'advanced' },
+        content: 'I agree with SecurityMaven. You can also check out NIST SP 800-175B for specific timelines and compliance requirements.',
+        createdAt: '30 mins ago'
+      }
+    ]);
+  };
+
+  const handlePostReply = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyText.trim()) return;
+    
+    setDummyReplies([...dummyReplies, {
+      id: `reply-${Date.now()}`,
+      author: { username: 'You', avatar: '👤', knowledgeLevel: 'intermediate' },
+      content: replyText,
+      createdAt: 'Just now'
+    }]);
+    
+    // Update reply count optimistically
+    if (selectedThread) {
+      const updatedThread = { ...selectedThread, replies: selectedThread.replies + 1 };
+      setSelectedThread(updatedThread);
+      setThreads(prev => prev.map(t => t.id === updatedThread.id ? updatedThread : t));
+    }
+    setReplyText('');
   };
 
   return (
@@ -264,7 +313,7 @@ export default function Community() {
         )}
 
         {/* Threads Tab */}
-        {activeTab === 'threads' && (
+        {activeTab === 'threads' && !selectedThread && (
           <div className="space-y-6">
             {/* Category Filter & Actions */}
             <div className="flex flex-col sm:flex-row justify-between gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-800 backdrop-blur-sm">
@@ -359,6 +408,7 @@ export default function Community() {
               {threads.map(thread => (
                 <div
                   key={thread.id}
+                  onClick={() => handleSelectThread(thread)}
                   className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition cursor-pointer"
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -418,6 +468,120 @@ export default function Community() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Selected Thread Detailed View */}
+        {activeTab === 'threads' && selectedThread && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <button 
+              onClick={() => setSelectedThread(null)}
+              className="flex items-center gap-2 text-slate-400 hover:text-white transition"
+            >
+              ← Back to Threads
+            </button>
+
+            {/* Original Post */}
+            <div className="bg-slate-800 border border-slate-700 rounded-xl p-8 shadow-xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400"></div>
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-4">{selectedThread.title}</h2>
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl bg-slate-900 p-2 rounded-full border border-slate-700">{selectedThread.author.avatar}</span>
+                    <div>
+                      <div className="text-white font-bold">{selectedThread.author.username}</div>
+                      <div className="text-xs text-slate-400 flex items-center gap-2">
+                        <span className="uppercase tracking-wider text-blue-400 font-semibold">{selectedThread.author.knowledgeLevel}</span>
+                        <span>•</span>
+                        <span>{new Date(selectedThread.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <span className={`text-xs px-3 py-1.5 rounded-md font-bold uppercase tracking-wider ${
+                  selectedThread.category === 'question' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                  selectedThread.category === 'guide' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                  selectedThread.category === 'news' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                  'bg-slate-700 text-slate-300 border border-slate-600'
+                }`}>
+                  {selectedThread.category}
+                </span>
+              </div>
+
+              <div className="prose prose-invert max-w-none text-slate-300 mb-8">
+                {selectedThread.content.split('\n').map((para, i) => (
+                  <p key={i} className="mb-4">{para}</p>
+                ))}
+              </div>
+
+              <div className="flex gap-4 flex-wrap mb-6">
+                {selectedThread.tags.map(tag => (
+                  <span key={tag} className="flex items-center gap-1.5 text-xs font-medium bg-slate-900 border border-slate-700 text-gray-300 px-3 py-1.5 rounded-full shadow-sm">
+                    <Tag className="w-3 h-3 text-cyan-500" />
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-8 text-sm text-gray-400 border-t border-slate-700 pt-6">
+                <button 
+                  onClick={() => handleUpvote(selectedThread.id)}
+                  className="flex items-center gap-2 hover:text-emerald-400 transition-colors group px-4 py-2 rounded-lg hover:bg-slate-700/50"
+                >
+                  <ThumbsUp className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                  <span className="font-bold text-base group-hover:text-emerald-400">{selectedThread.upvotes} Upvotes</span>
+                </button>
+                <div className="flex items-center gap-2 px-4 py-2">
+                  <Eye className="w-5 h-5" />
+                  <span className="font-semibold text-base">{selectedThread.views + 1} Views</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Replies Section */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
+                <MessageSquare className="w-5 h-5 text-blue-400" />
+                Replies ({selectedThread.replies})
+              </h3>
+              
+              {dummyReplies.map(reply => (
+                <div key={reply.id} className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 ml-4 sm:ml-8 border-l-4 border-l-slate-700 hover:border-l-blue-500 transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-xl bg-slate-800 p-1.5 rounded-full border border-slate-700">{reply.author.avatar}</span>
+                    <div>
+                      <div className="text-white font-bold">{reply.author.username}</div>
+                      <div className="text-xs text-slate-500">{reply.createdAt}</div>
+                    </div>
+                  </div>
+                  <p className="text-slate-300 text-sm leading-relaxed">{reply.content}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Reply Input Form */}
+            <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 mt-8 ml-4 sm:ml-8 shadow-lg">
+              <form onSubmit={handlePostReply}>
+                <label className="block text-sm font-bold text-white mb-3">Add a Reply</label>
+                <textarea
+                  required
+                  rows={3}
+                  value={replyText}
+                  onChange={e => setReplyText(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none mb-4"
+                  placeholder="Share your insights..."
+                ></textarea>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition shadow-[0_0_15px_rgba(37,99,235,0.3)] flex items-center gap-2"
+                  >
+                    Post Reply
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
