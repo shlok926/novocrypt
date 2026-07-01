@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Trophy, MessageSquare, Eye, ThumbsUp, Tag, TrendingUp, Zap } from 'lucide-react';
+import { Trophy, MessageSquare, Eye, ThumbsUp, Tag, TrendingUp, Zap, Shield } from 'lucide-react';
 import { communityService } from '@/services/complianceCommunityService';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import type { LeaderboardEntry, CommunityThread, TrendingTopic } from '@/types/compliance-community-chatbot.types';
@@ -83,20 +83,33 @@ export default function Community() {
 
   return (
     <div className="min-h-screen bg-slate-950">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 border-b border-slate-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center justify-between">
+      {/* Premium Header */}
+      <div className="relative overflow-hidden bg-slate-950 border-b border-slate-800 pt-16 pb-12">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute top-20 left-10 w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">Community & Leaderboard</h1>
-              <p className="text-gray-300 text-lg">
-                Connect with the quantum cryptography community and track your progress
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium mb-5 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+                <Shield className="w-4 h-4" />
+                Community Hub
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+                Global Security <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">Network</span>
+              </h1>
+              <p className="text-slate-400 text-lg max-w-2xl">
+                Collaborate with quantum cryptography experts, share migration strategies, and track organizational readiness on the global leaderboard.
               </p>
             </div>
-            <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${isConnected ? 'bg-green-900 bg-opacity-40 border border-green-500' : 'bg-red-900 bg-opacity-40 border border-red-500'}`}>
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
-              <span className={isConnected ? 'text-green-400 text-sm font-semibold' : 'text-red-400 text-sm font-semibold'}>
-                {isConnected ? '🔴 Live Updates' : '⚫ Offline'}
+            <div className={`inline-flex items-center gap-3 px-5 py-3 rounded-xl border ${
+              isConnected 
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+            } shadow-lg backdrop-blur-sm transition-all duration-300 hover:shadow-xl`}>
+              <div className={`w-2.5 h-2.5 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-400'}`}></div>
+              <span className="font-semibold tracking-wide text-sm uppercase">
+                {isConnected ? 'Live Sync Active' : 'Offline Mode'}
               </span>
             </div>
           </div>
@@ -105,78 +118,106 @@ export default function Community() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}
-        <div className="flex gap-4 mb-8 border-b border-slate-700">
+        <div className="flex gap-4 mb-8 border-b border-slate-800">
           {(['leaderboard', 'threads', 'trending'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-3 font-semibold transition border-b-2 ${
+              className={`px-6 py-4 font-semibold text-sm uppercase tracking-wide transition-all border-b-2 -mb-px ${
                 activeTab === tab
-                  ? 'text-blue-400 border-blue-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  ? 'text-blue-400 border-blue-400 bg-blue-400/5'
+                  : 'text-slate-500 border-transparent hover:text-slate-300 hover:border-slate-700'
               }`}
             >
-              {tab === 'leaderboard' && <Trophy className="w-5 h-5 inline mr-2" />}
-              {tab === 'threads' && <MessageSquare className="w-5 h-5 inline mr-2" />}
-              {tab === 'trending' && <TrendingUp className="w-5 h-5 inline mr-2" />}
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'leaderboard' && <Trophy className="w-4 h-4 inline mr-2 -mt-1" />}
+              {tab === 'threads' && <MessageSquare className="w-4 h-4 inline mr-2 -mt-1" />}
+              {tab === 'trending' && <TrendingUp className="w-4 h-4 inline mr-2 -mt-1" />}
+              {tab}
             </button>
           ))}
         </div>
 
         {/* Leaderboard Tab */}
         {activeTab === 'leaderboard' && (
-          <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
-            <div className="p-6 border-b border-slate-700 bg-gradient-to-r from-slate-700 to-slate-800">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Trophy className="w-6 h-6 text-yellow-400" />
-                Top Contributors
-              </h2>
+          <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            <div className="p-8 border-b border-slate-800 bg-gradient-to-r from-slate-900 via-slate-800/50 to-slate-900">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <div className="p-2.5 bg-yellow-500/10 border border-yellow-500/20 rounded-xl shadow-[0_0_15px_rgba(234,179,8,0.15)]">
+                    <Trophy className="w-6 h-6 text-yellow-500" />
+                  </div>
+                  Enterprise Readiness Rankings
+                </h2>
+                <div className="text-sm font-medium text-slate-500 flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-700/50">
+                  <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                  Real-time Data
+                </div>
+              </div>
             </div>
+            
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-700 bg-slate-700">
-                    <th className="px-6 py-3 text-left text-gray-300 font-semibold">Rank</th>
-                    <th className="px-6 py-3 text-left text-gray-300 font-semibold">User</th>
-                    <th className="px-6 py-3 text-center text-gray-300 font-semibold">Score</th>
-                    <th className="px-6 py-3 text-center text-gray-300 font-semibold">Assessments</th>
-                    <th className="px-6 py-3 text-center text-gray-300 font-semibold">Achievements</th>
-                    <th className="px-6 py-3 text-right text-gray-300 font-semibold">Last Active</th>
+                  <tr className="border-b border-slate-800 text-xs tracking-widest text-slate-400 uppercase bg-slate-900/80">
+                    <th className="px-8 py-5 text-left font-bold">Rank</th>
+                    <th className="px-8 py-5 text-left font-bold">Organization / Expert</th>
+                    <th className="px-8 py-5 text-center font-bold">Security Score</th>
+                    <th className="px-8 py-5 text-center font-bold">Audits Completed</th>
+                    <th className="px-8 py-5 text-center font-bold">Certifications</th>
+                    <th className="px-8 py-5 text-right font-bold">Status</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-800/50">
                   {leaderboard.map((entry, idx) => (
                     <tr
                       key={entry.userId}
-                      className={`border-b border-slate-700 hover:bg-slate-700 transition ${idx === 0 ? 'bg-yellow-900 bg-opacity-20' : ''}`}
+                      className={`group transition-all duration-300 hover:bg-slate-800/50 ${
+                        idx === 0 ? 'bg-gradient-to-r from-yellow-500/5 via-transparent to-transparent' : 
+                        idx === 1 ? 'bg-gradient-to-r from-slate-300/5 via-transparent to-transparent' :
+                        idx === 2 ? 'bg-gradient-to-r from-amber-700/5 via-transparent to-transparent' : ''
+                      }`}
                     >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          {entry.rank === 1 && <span className="text-2xl">🥇</span>}
-                          {entry.rank === 2 && <span className="text-2xl">🥈</span>}
-                          {entry.rank === 3 && <span className="text-2xl">🥉</span>}
-                          {entry.rank > 3 && <span className="text-white font-bold text-lg">#{entry.rank}</span>}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
+                      <td className="px-8 py-6">
                         <div className="flex items-center gap-3">
-                          <span className="text-2xl">{entry.avatar}</span>
-                          <span className="text-white font-semibold">{entry.username}</span>
+                          {entry.rank === 1 && <span className="flex items-center justify-center w-9 h-9 rounded-full bg-yellow-500/10 text-yellow-500 font-bold border border-yellow-500/30 shadow-[0_0_15px_rgba(234,179,8,0.2)]">1</span>}
+                          {entry.rank === 2 && <span className="flex items-center justify-center w-9 h-9 rounded-full bg-slate-300/10 text-slate-300 font-bold border border-slate-300/30 shadow-[0_0_15px_rgba(203,213,225,0.15)]">2</span>}
+                          {entry.rank === 3 && <span className="flex items-center justify-center w-9 h-9 rounded-full bg-amber-700/10 text-amber-500 font-bold border border-amber-700/30 shadow-[0_0_15px_rgba(180,83,9,0.2)]">3</span>}
+                          {entry.rank > 3 && <span className="flex items-center justify-center w-9 h-9 text-slate-500 font-bold">{entry.rank}</span>}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="text-blue-400 font-bold text-lg">{entry.score}</span>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-slate-800 border border-slate-700/50 text-2xl group-hover:scale-105 group-hover:border-slate-600 transition-all shadow-inner">
+                            {entry.avatar}
+                          </div>
+                          <div>
+                            <div className="text-white font-bold text-[15px]">{entry.username}</div>
+                            <div className="text-xs text-slate-500 mt-0.5 font-medium uppercase tracking-wide">PQC Specialist</div>
+                          </div>
+                        </div>
                       </td>
-                      <td className="px-6 py-4 text-center text-gray-300">{entry.completedAssessments}</td>
-                      <td className="px-6 py-4 text-center">
-                        <div className="flex items-center justify-center gap-1">
+                      <td className="px-8 py-6 text-center">
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]">
+                          <Zap className="w-3.5 h-3.5 text-cyan-400" />
+                          <span className="text-cyan-400 font-bold tracking-wide">{entry.score.toLocaleString()}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <span className="text-slate-300 font-bold">{entry.completedAssessments}</span>
+                      </td>
+                      <td className="px-8 py-6 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
                           {Array(entry.achievements).fill(0).map((_, i) => (
-                            <span key={i} className="text-lg">⭐</span>
+                            <span key={i} className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]"></span>
                           ))}
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right text-gray-400">{entry.lastActive}</td>
+                      <td className="px-8 py-6 text-right">
+                        <span className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-400/10 px-3 py-1.5 rounded-full border border-emerald-400/20 uppercase tracking-wider">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_5px_rgba(52,211,153,0.8)]"></span>
+                          {entry.lastActive}
+                        </span>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
